@@ -33,9 +33,11 @@ IF ERRORLEVEL 1 (
  	IF DEFINED OPCSTOP (
 		CALL :Cabecalho
  		ECHO Parando servicos selecionados...
+		ECHO.
 		CALL :ExecSelServ EXECSTOP
 		
 		IF ERRORLEVEL 1 (
+			ECHO.
 			ECHO Aguardando parar os servicos...
 			Timeout /T %TIMESTOP%
 			CALL :Cabecalho
@@ -51,21 +53,24 @@ IF ERRORLEVEL 1 (
 	IF DEFINED OPCSTART (
 		CALL :Cabecalho
 		ECHO Iniciando servicos selecionados...
+		ECHO.
 		CALL :ExecSelServ EXECSTART
 			
 		IF ERRORLEVEL 1 (
+			ECHO.
 			ECHO Aguardando iniciar os servicos...
 			Timeout /T %TIMESTART%
 			CALL :Cabecalho
 			ECHO Verificando se os servicos iniciaram corretamente
+			ECHO.
 			CALL :ExecSelServ STSTART
 		)
 		
 	)
 )
 
-ECHO .
-ECHO .
+ECHO.
+ECHO.
 pause
 
 EXIT /B %ERRORLEVEL%
@@ -85,7 +90,7 @@ EXIT /B %ERRORLEVEL%
 ::========================================================================================
 :ConfigVars
 
-SET FORCESTOP=0
+SET FORCESTOP=1
 SET TIMESTOP=60
 SET TIMESTART=10
 SET USRADM=transjoi\administrator
@@ -129,12 +134,21 @@ EXIT /B 1
 ::========================================================================================
 :ExecSelServ
 
-FOR /L %%I IN (1,1,20) DO (
-
-	IF DEFINED !SERVER_SEL[%%I,1]! ( 
-		CALL :ExecFunc %%I %1 
-	) 
-	REM ELSE ( EXIT /B 1 )
+FOR /L %%I IN (1,1,5) DO (
+	
+	
+	
+	IF NOT "!SERVER_SEL[%%I,1]!" == "" (
+		CALL :ExecFunc %%I %1
+	)
+	
+	IF "%1" EQU "EXECSTART" (
+		IF NOT "!SERVER_SEL[%%I,3]!" == "" (
+			Timeout /T !SERVER_SEL[%%I,3]!
+			ECHO.
+		)
+	)
+	
 )
 
 EXIT /B 1
@@ -156,34 +170,50 @@ EXIT /B 1
 
 	SET EXECSRV=!SERVER_SEL[%1,1]!
 	SET EXECLST=!SERVER_SEL[%1,2]!
-	SET EXECOPC=%2
-
-	FOR %%S IN (%EXECLST%) DO (
+	SET EXECOPC=%2	
 	
-		IF "%EXECOPC%" EQU "EXECSTOP" ( 
+	FOR %%S IN (%EXECLST%) DO (
+				
+		IF %EXECOPC% EQU EXECSTOP ( 
 			ECHO Parando servico %%S ...
-			REM DESCOMENTAR
-			ECHO sc \\%EXECSRV% stop %%S > NUL
-		) ELSE IF "%EXECOPC%" EQU "EXECSTART" ( 
+			ECHO sc \\%EXECSRV% stop %%S > NUL	
+		) 
+		
+		IF %EXECOPC% EQU EXECSTART ( 
 			ECHO Iniciando servico %%S ...
-			REM DESCOMENTAR
 			ECHO sc \\%EXECSRV% start %%S > NUL
-		) ELSE IF "%EXECOPC%" EQU "STSTOP" ( 
+		) 
+		
+		IF %EXECOPC% EQU STSTOP ( 
 			ECHO Verificando servico %%S ...
 			CALL :VerStatus %EXECSRV% %%S STOPPED
 			IF ERRORLEVEL 2 (			
-				ECHO Problema ao parar o servico %%S ...
-				ECHO .
+				ECHO.
+				ECHO ============ERRO=================
+				ECHO.
+				ECHO ERRO ao parar o servico %%S ...
+				ECHO.
+				ECHO =================================
+				ECHO.
 			)
-		) ELSE IF "%EXECOPC%" EQU "STSTART" ( 
+			ECHO.
+		)
+		
+		IF %EXECOPC% EQU STSTART ( 
 			ECHO Verificando servico %%S ...
 			CALL :VerStatus %EXECSRV% %%S RUNNING
 			IF ERRORLEVEL 2 (
-				ECHO Problema ao iniciar o servico %%S ...
-				ECHO .
+				ECHO.
+				ECHO ============ERRO=================
+				ECHO.
+				ECHO ERRO ao iniciar o servico %%S ...
+				ECHO.
+				ECHO =================================
+				ECHO.
 			)
+			ECHO.
 		)
-
+		
 	)
 	
 EXIT /B 1
@@ -256,7 +286,7 @@ IF DEFINED LISTA (
 IF DEFINED OPCAO (
 	ECHO Opcao Escolhida: %OPCDSC%
 )
-ECHO .
+ECHO.
 
 EXIT /B 1
 :: Fim da Cabecalho
@@ -285,9 +315,9 @@ ECHO 4 - TSS
 ECHO 5 - Todos (Exceto TSS)
 ECHO 6 - Todos (Com TSS)
 ECHO 7 - Prototipo
-ECHO .
+ECHO.
 SET /P LISTA="Escolha a Lista de Servicos: "
-ECHO .
+ECHO.
 
 IF "%LISTA%" == "1" ( 
 
@@ -306,6 +336,7 @@ IF "%LISTA%" == "1" (
 	SET LISTADSC=3 - Licence Server e DbAccess
 	SET SERVER_SEL[1,1]=%SRVLIC%
 	SET SERVER_SEL[1,2]=%LISTLIC%
+	SET SERVER_SEL[1,3]=5
 	SET SERVER_SEL[2,1]=%SRVDBA%
 	SET SERVER_SEL[2,2]=%LISTDBA%
 	
@@ -320,6 +351,7 @@ IF "%LISTA%" == "1" (
 	SET LISTADSC=5 - Todos - Exceto TSS
 	SET SERVER_SEL[1,1]=%SRVLIC%
 	SET SERVER_SEL[1,2]=%LISTLIC%
+	SET SERVER_SEL[1,3]=5	
 	SET SERVER_SEL[2,1]=%SRVDBA%
 	SET SERVER_SEL[2,2]=%LISTDBA%
 	SET SERVER_SEL[3,1]=%SRVAPP%
@@ -330,6 +362,7 @@ IF "%LISTA%" == "1" (
 	SET LISTADSC=6 - Todos - Com TSS
 	SET SERVER_SEL[1,1]=%SRVLIC%
 	SET SERVER_SEL[1,2]=%LISTLIC%
+	SET SERVER_SEL[1,3]=5
 	SET SERVER_SEL[2,1]=%SRVDBA%
 	SET SERVER_SEL[2,2]=%LISTDBA%
 	SET SERVER_SEL[3,1]=%SRVAPP%
@@ -367,16 +400,16 @@ EXIT /B 1
 ::
 ::========================================================================================
 :SelecionaOpcao
-ECHO .
+ECHO.
 ECHO =================================
 ECHO OPCAO DE EXECUCAO:
 ECHO =================================
 ECHO 1 - Parar Servicos
 ECHO 2 - Iniciar Servicos Parados
 ECHO 3 - Parar e Reiniciar Servicos
-ECHO .
+ECHO.
 SET /P OPCAO="Escolha a Opcao: "
-ECHO .
+ECHO.
 
 IF %OPCAO%==1 (
 	SET OPCDSC=1 - Parar Servicos
@@ -412,20 +445,19 @@ EXIT /B 1
 :VerStatus
 	SET RETURN=0
 	
-	sc \\%1 query %2 > state.tmp
+	sc \\%1 query %2 > %temp%\state.tmp
 	
-	FINDSTR /I "%3" state.tmp || (
+	FINDSTR /I "%3" %temp%\state.tmp || (
 		IF /I "%3" EQU "STOPPED" (
 			IF %FORCESTOP% EQU 1 (
 				ECHO Forcando parada do servico %2
-				REM DESCOMENTAR
 				ECHO taskkill /S %1 /U %USRADM% /P /T /F /FI "SERVICES eq %2"
 			) ELSE SET RETURN=2
 		) ELSE SET RETURN=2
 		
 	)
 	
-	DEL state.tmp
+	DEL %temp%\state.tmp
 	
 EXIT /B %RETURN%
 :: Fim da VerStatus
