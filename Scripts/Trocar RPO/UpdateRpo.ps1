@@ -1,5 +1,24 @@
-﻿
+﻿# ========================================================================================
+#  Rotina para automatizar a troca de RPO´s em ambientes complexos
+# ========================================================================================
+# 
+# 	@author		TSC681 Thiago Mota
+# 	@version	1.0
+# 	@since		02/08/2017
+# 
+# ========================================================================================
 
+
+
+# ========================================================================================
+#  Atualiza o arquivo Ini com o novo SourcePath
+# ========================================================================================
+# 
+# 	@author		TSC681 Thiago Mota
+# 	@version	1.0
+# 	@since		02/08/2017
+# 
+# ========================================================================================
 function UpdateApo($IniAlt, $Env_Name, $New_ApoFile) {
 
     $Env_Found=$false
@@ -36,11 +55,15 @@ function UpdateApo($IniAlt, $Env_Name, $New_ApoFile) {
 }
 
 
-
-
-#####################################
-# CONFIGURAÇÕES
-#####################################
+# ========================================================================================
+#  Configurações e rotina principal
+# ========================================================================================
+# 
+# 	@author		TSC681 Thiago Mota
+# 	@version	1.0
+# 	@since		02/08/2017
+# 
+# ========================================================================================
 
 cls
 $seqAtu=1
@@ -52,7 +75,22 @@ $origem='\\192.168.80.10\c$\TOTVS\Microsiga\Protheus\apo\comp\'
 $caminhoPrd='TOTVS\Microsiga\Protheus\apo\producao\'
 $caminhoRPO='C:\' + $caminhoPrd
 $destList=@()
-$serverList=@()
+
+###############################################
+# Lista de servidores e arquivos a copiar
+# Formato dos elementos do Array:
+#@{ 	'PathDestin' = [Caminho de destino on será copiado o arquivo RPO];
+#	'SourcePath' = [SourcePath que será informado no INI;
+#	'Envir_List' = [Array com os Ambientes que serão atualizados no Ini];
+#	'Master_Ini' = [Caminho para o Ini do Master];
+#	'Slaves_Ini' = [Base para o Caminho do Ini nos Slaves];
+#	'Slaves_Qtd' = [Quantidade de Slaves]
+#}
+###############################################
+$serverList=@(
+
+
+)
 
 $SlavesMaster=20
 $SlavesJobs=3
@@ -76,6 +114,9 @@ $serverList+= '\\192.168.80.18\c$\TOTVS\Microsiga\Protheus\bin\appserverJobs\'
 for($i=1; $i -le $SlavesJobs; $i++){
     $serverList+= '\\192.168.80.18\c$\TOTVS\Microsiga\Protheus\bin\appserverJobs_slv' + $i.ToString('00') + "\"
 }
+
+
+
 
 
 #####################################
