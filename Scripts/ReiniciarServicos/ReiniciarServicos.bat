@@ -13,21 +13,42 @@ SETLOCAL enabledelayedexpansion
 
 CALL :ConfigVars
 
-CALL :Cabecalho
-CALL :SelecionaListaServicos
-IF ERRORLEVEL 1 (
-	CALL :Cabecalho
-	CALL :SelecionaOpcao
+IF NOT "%1" == "" (
+	IF NOT "%2" == "" ( 
+		SET LISTPARAM=1
+
+		CALL :SelecionaListaServicos %1
+		CALL :SelecionaOpcao %2
+	)
 )
 
-IF ERRORLEVEL 1 (
+
+IF NOT DEFINED LISTPARAM (
 	CALL :Cabecalho
-	SET /P CONTINUA="Confirma a Operacao [S/N]: "
-	
-	IF /I "!CONTINUA!" NEQ "S" (
-		EXIT /B 2
-	) 
+	CALL :SelecionaListaServicos
+	IF ERRORLEVEL 1 (
+		CALL :Cabecalho
+		CALL :SelecionaOpcao
+	)
 )
+
+IF NOT DEFINED LISTPARAM (
+	IF ERRORLEVEL 1 (
+		CALL :Cabecalho
+		SET /P CONTINUA="Confirma a Operacao [S/N]: "
+		
+		IF /I "!CONTINUA!" NEQ "S" (
+			EXIT /B 2
+		) 
+	)
+)
+
+:: TODO: TESTES
+:: CALL :Cabecalho
+:: echo Saindo...
+:: pause
+:: EXIT /B 2
+
 
 IF ERRORLEVEL 1 (
  	IF DEFINED OPCSTOP (
@@ -308,21 +329,28 @@ EXIT /B 1
 ::========================================================================================
 :SelecionaListaServicos
 
-ECHO =================================
-ECHO LISTA DE SERVICOS:
-ECHO =================================
-ECHO 1 - Somente Jobs
-ECHO 2 - Master e Slaves
-ECHO 3 - Licence Server e DbAccess
-ECHO 4 - TSS
-ECHO 5 - Todos (Exceto TSS)
-ECHO 6 - Todos (Com TSS)
-ECHO 7 - Prototipo
-ECHO.
-SET /P LISTA="Escolha a Lista de Servicos: "
-ECHO.
+SET LISTA=0
 
-IF "%LISTA%" == "1" ( 
+IF "%1" NEQ "" SET LISTA=%1
+
+IF %LISTA% EQU 0 (
+	ECHO =================================
+	ECHO LISTA DE SERVICOS:
+	ECHO =================================
+	ECHO.
+	ECHO 1 - Somente Jobs
+	ECHO 2 - Master e Slaves
+	ECHO 3 - Licence Server e DbAccess
+	ECHO 4 - TSS
+	ECHO 5 - Todos [Exceto TSS]
+	ECHO 6 - Todos [Com TSS]
+	ECHO 7 - Prototipo
+	ECHO.
+	SET /P LISTA="Escolha a Lista de Servicos: "
+	ECHO.
+)
+
+IF %LISTA% EQU 1 ( 
 
 	SET LISTADSC=1 - Somente Jobs
 	SET SERVER_SEL[1,1]=%SRVJOB%
@@ -413,16 +441,23 @@ EXIT /B 1
 ::
 ::========================================================================================
 :SelecionaOpcao
-ECHO.
-ECHO =================================
-ECHO OPCAO DE EXECUCAO:
-ECHO =================================
-ECHO 1 - Parar Servicos
-ECHO 2 - Iniciar Servicos Parados
-ECHO 3 - Parar e Reiniciar Servicos
-ECHO.
-SET /P OPCAO="Escolha a Opcao: "
-ECHO.
+
+SET OPCAO=0
+
+IF "%1" NEQ "" SET OPCAO=%1
+
+IF %OPCAO% EQU 0 (
+	ECHO.
+	ECHO =================================
+	ECHO OPCAO DE EXECUCAO:
+	ECHO =================================
+	ECHO 1 - Parar Servicos
+	ECHO 2 - Iniciar Servicos Parados
+	ECHO 3 - Parar e Reiniciar Servicos
+	ECHO.
+	SET /P OPCAO="Escolha a Opcao: "
+	ECHO.
+)
 
 IF %OPCAO%==1 (
 	SET OPCDSC=1 - Parar Servicos

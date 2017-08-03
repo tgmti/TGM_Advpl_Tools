@@ -13,21 +13,42 @@ SETLOCAL enabledelayedexpansion
 
 CALL :ConfigVars
 
-CALL :Cabecalho
-CALL :SelecionaListaServicos
-IF ERRORLEVEL 1 (
-	CALL :Cabecalho
-	CALL :SelecionaOpcao
+IF NOT "%1" == "" (
+	IF NOT "%2" == "" ( 
+		SET LISTPARAM=1
+
+		CALL :SelecionaListaServicos %1
+		CALL :SelecionaOpcao %2
+	)
 )
 
-IF ERRORLEVEL 1 (
+
+IF NOT DEFINED LISTPARAM (
 	CALL :Cabecalho
-	SET /P CONTINUA="Confirma a Operacao [S/N]: "
-	
-	IF /I "!CONTINUA!" NEQ "S" (
-		EXIT /B 2
-	) 
+	CALL :SelecionaListaServicos
+	IF ERRORLEVEL 1 (
+		CALL :Cabecalho
+		CALL :SelecionaOpcao
+	)
 )
+
+IF NOT DEFINED LISTPARAM (
+	IF ERRORLEVEL 1 (
+		CALL :Cabecalho
+		SET /P CONTINUA="Confirma a Operacao [S/N]: "
+		
+		IF /I "!CONTINUA!" NEQ "S" (
+			EXIT /B 2
+		) 
+	)
+)
+
+:: TODO: TESTES
+:: CALL :Cabecalho
+:: echo Saindo...
+:: pause
+:: EXIT /B 2
+
 
 IF ERRORLEVEL 1 (
  	IF DEFINED OPCSTOP (
@@ -96,9 +117,11 @@ SET TIMESTART=10
 SET USRADM=transjoi\administrator
 REM SET PSWADM=
 SET SRVAPP=192.168.80.10
+SET SRVJOB=192.168.80.18
+SET SRVADT=192.168.80.12
 SET SRVLIC=192.168.80.10
 SET SRVTSS=192.168.80.27
-SET SRVDBA=192.168.80.12
+SET SRVDBA=192.168.80.10
 SET SRVPRT=192.168.80.29
 SET LISTJOBS=Totvs_Job_Master Totvs_Job_Slv01 Totvs_Job_Slv02 Totvs_Job_Slv03
 SET LISTMASTER=Totvs_Master
@@ -107,7 +130,8 @@ SET LISTMASTER=Totvs_Master
 FOR /L %%I IN (1,1,20) DO CALL :AddListMaster %%I
 
 SET LISTLIC=TotvsLicenseServer
-SET LISTDBA=DBAUDIT DBAccess64_AUDIT DBAccess64_Totvs11 
+SET LISTADT=DBAUDIT DBAccess64_AUDIT 
+SET LISTDBA=DBAccess64_Totvs11 
 SET LISTTSS=DBAccess64 appserver_0101_MDFe appserver_0103_MDFe Totvs11_TSS
 
 :: Adiciona os serviços de TSS e TSSNFSE das 8 filiais
@@ -134,7 +158,7 @@ EXIT /B 1
 ::========================================================================================
 :ExecSelServ
 
-FOR /L %%I IN (1,1,5) DO (
+FOR /L %%I IN (1,1,10) DO (
 	
 	
 	
@@ -176,12 +200,12 @@ EXIT /B 1
 				
 		IF %EXECOPC% EQU EXECSTOP ( 
 			ECHO Parando servico %%S ...
-			ECHO sc \\%EXECSRV% stop %%S > NUL	
+			sc \\%EXECSRV% stop %%S > NUL	
 		) 
 		
 		IF %EXECOPC% EQU EXECSTART ( 
 			ECHO Iniciando servico %%S ...
-			ECHO sc \\%EXECSRV% start %%S > NUL
+			sc \\%EXECSRV% start %%S > NUL
 		) 
 		
 		IF %EXECOPC% EQU STSTOP ( 
@@ -305,31 +329,38 @@ EXIT /B 1
 ::========================================================================================
 :SelecionaListaServicos
 
-ECHO =================================
-ECHO LISTA DE SERVICOS:
-ECHO =================================
-ECHO 1 - Somente Jobs
-ECHO 2 - Master, Slaves e Jobs
-ECHO 3 - Licence Server e DbAccess
-ECHO 4 - TSS
-ECHO 5 - Todos (Exceto TSS)
-ECHO 6 - Todos (Com TSS)
-ECHO 7 - Prototipo
-ECHO.
-SET /P LISTA="Escolha a Lista de Servicos: "
-ECHO.
+SET LISTA=0
 
-IF "%LISTA%" == "1" ( 
+IF "%1" NEQ "" SET LISTA=%1
+
+IF %LISTA% EQU 0 (
+	ECHO =================================
+	ECHO LISTA DE SERVICOS:
+	ECHO =================================
+	ECHO.
+	ECHO 1 - Somente Jobs
+	ECHO 2 - Master e Slaves
+	ECHO 3 - Licence Server e DbAccess
+	ECHO 4 - TSS
+	ECHO 5 - Todos [Exceto TSS]
+	ECHO 6 - Todos [Com TSS]
+	ECHO 7 - Prototipo
+	ECHO.
+	SET /P LISTA="Escolha a Lista de Servicos: "
+	ECHO.
+)
+
+IF %LISTA% EQU 1 ( 
 
 	SET LISTADSC=1 - Somente Jobs
-	SET SERVER_SEL[1,1]=%SRVAPP%
+	SET SERVER_SEL[1,1]=%SRVJOB%
 	SET SERVER_SEL[1,2]=%LISTJOBS%
 	
 ) ELSE IF %LISTA% EQU 2 (
 
-	SET LISTADSC=2 - Master, Slaves e Jobs
+	SET LISTADSC=2 - Master e Slaves
 	SET SERVER_SEL[1,1]=%SRVAPP%
-	SET SERVER_SEL[1,2]=%LISTJOBS% %LISTMASTER%
+	SET SERVER_SEL[1,2]=%LISTMASTER%
 	
 ) ELSE IF %LISTA% EQU 3 (
 
@@ -337,8 +368,10 @@ IF "%LISTA%" == "1" (
 	SET SERVER_SEL[1,1]=%SRVLIC%
 	SET SERVER_SEL[1,2]=%LISTLIC%
 	SET SERVER_SEL[1,3]=5
-	SET SERVER_SEL[2,1]=%SRVDBA%
-	SET SERVER_SEL[2,2]=%LISTDBA%
+	SET SERVER_SEL[2,1]=%SRVADT%
+	SET SERVER_SEL[2,2]=%LISTADT%
+	SET SERVER_SEL[3,1]=%SRVDBA%
+	SET SERVER_SEL[3,2]=%LISTDBA%
 	
 ) ELSE IF %LISTA% EQU 4 (
 
@@ -351,11 +384,15 @@ IF "%LISTA%" == "1" (
 	SET LISTADSC=5 - Todos - Exceto TSS
 	SET SERVER_SEL[1,1]=%SRVLIC%
 	SET SERVER_SEL[1,2]=%LISTLIC%
-	SET SERVER_SEL[1,3]=5	
-	SET SERVER_SEL[2,1]=%SRVDBA%
-	SET SERVER_SEL[2,2]=%LISTDBA%
-	SET SERVER_SEL[3,1]=%SRVAPP%
-	SET SERVER_SEL[3,2]=%LISTJOBS% %LISTMASTER%
+	SET SERVER_SEL[1,3]=5
+	SET SERVER_SEL[2,1]=%SRVADT%
+	SET SERVER_SEL[2,2]=%LISTADT%	
+	SET SERVER_SEL[3,1]=%SRVDBA%
+	SET SERVER_SEL[3,2]=%LISTDBA%
+	SET SERVER_SEL[4,1]=%SRVAPP%
+	SET SERVER_SEL[4,2]=%LISTMASTER%
+	SET SERVER_SEL[5,1]=%SRVJOB%
+	SET SERVER_SEL[5,2]=%LISTJOBS%
 	
 ) ELSE IF %LISTA% EQU 6 (
 
@@ -363,17 +400,21 @@ IF "%LISTA%" == "1" (
 	SET SERVER_SEL[1,1]=%SRVLIC%
 	SET SERVER_SEL[1,2]=%LISTLIC%
 	SET SERVER_SEL[1,3]=5
-	SET SERVER_SEL[2,1]=%SRVDBA%
-	SET SERVER_SEL[2,2]=%LISTDBA%
-	SET SERVER_SEL[3,1]=%SRVAPP%
-	SET SERVER_SEL[3,2]=%LISTJOBS% %LISTMASTER%
-	SET SERVER_SEL[4,1]=%SRVTSS%
-	SET SERVER_SEL[4,2]=%LISTTSS%
+	SET SERVER_SEL[2,1]=%SRVADT%
+	SET SERVER_SEL[2,2]=%LISTADT%
+	SET SERVER_SEL[3,1]=%SRVDBA%
+	SET SERVER_SEL[3,2]=%LISTDBA%
+	SET SERVER_SEL[4,1]=%SRVAPP%
+	SET SERVER_SEL[4,2]=%LISTMASTER%
+	SET SERVER_SEL[5,1]=%SRVTSS%
+	SET SERVER_SEL[5,2]=%LISTTSS%
+	SET SERVER_SEL[6,1]=%SRVJOB%
+	SET SERVER_SEL[6,2]=%LISTJOBS%	
 	
 ) ELSE IF %LISTA% EQU 7 (
 
 	SET LISTADSC=7 - Prototipo
-	SET SERVER_SEL[1,1]=%SRVDBA%
+	SET SERVER_SEL[1,1]=%SRVPRT%
 	SET SERVER_SEL[1,2]=%LISTPRTDB%
 	SET SERVER_SEL[2,1]=%SRVPRT%
 	SET SERVER_SEL[2,2]=%LISTPRT%
@@ -400,16 +441,23 @@ EXIT /B 1
 ::
 ::========================================================================================
 :SelecionaOpcao
-ECHO.
-ECHO =================================
-ECHO OPCAO DE EXECUCAO:
-ECHO =================================
-ECHO 1 - Parar Servicos
-ECHO 2 - Iniciar Servicos Parados
-ECHO 3 - Parar e Reiniciar Servicos
-ECHO.
-SET /P OPCAO="Escolha a Opcao: "
-ECHO.
+
+SET OPCAO=0
+
+IF "%1" NEQ "" SET OPCAO=%1
+
+IF %OPCAO% EQU 0 (
+	ECHO.
+	ECHO =================================
+	ECHO OPCAO DE EXECUCAO:
+	ECHO =================================
+	ECHO 1 - Parar Servicos
+	ECHO 2 - Iniciar Servicos Parados
+	ECHO 3 - Parar e Reiniciar Servicos
+	ECHO.
+	SET /P OPCAO="Escolha a Opcao: "
+	ECHO.
+)
 
 IF %OPCAO%==1 (
 	SET OPCDSC=1 - Parar Servicos
@@ -451,7 +499,7 @@ EXIT /B 1
 		IF /I "%3" EQU "STOPPED" (
 			IF %FORCESTOP% EQU 1 (
 				ECHO Forcando parada do servico %2
-				ECHO taskkill /S %1 /U %USRADM% /P /T /F /FI "SERVICES eq %2"
+				taskkill /S %1 /U %USRADM% /P /T /F /FI "SERVICES eq %2"
 			) ELSE SET RETURN=2
 		) ELSE SET RETURN=2
 		
