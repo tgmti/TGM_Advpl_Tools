@@ -265,6 +265,7 @@ function execRotin($Private:serverList) {
 ###############################################
 cls
 execRotin (configParam)
+\\192.168.80.18\c$\TOTVS\Microsiga\Protheus\ferramentas\ReiniciarServicos.bat 1 3
 ###############################################
 ###############################################
 

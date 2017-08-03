@@ -44,10 +44,10 @@ IF NOT DEFINED LISTPARAM (
 )
 
 :: TODO: TESTES
-:: CALL :Cabecalho
-:: echo Saindo...
-:: pause
-:: EXIT /B 2
+CALL :Cabecalho
+echo Saindo...
+pause
+EXIT /B 2
 
 
 IF ERRORLEVEL 1 (
