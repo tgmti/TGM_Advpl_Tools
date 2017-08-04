@@ -1,11 +1,13 @@
-﻿# ========================================================================================
+﻿#Requires -Version 5.0
+#
+# ========================================================================================
 #  Rotina para automatizar a troca de RPO´s em ambientes complexos
 # ========================================================================================
 # 
 # 	@author		TSC681 Thiago Mota
 # 	@version	1.0
 # 	@since		02/08/2017
-# 
+#
 # ========================================================================================
 
 
@@ -264,8 +266,16 @@ function execRotin($Private:serverList) {
 # Execução do Script
 ###############################################
 cls
-execRotin (configParam)
-\\192.168.80.18\c$\TOTVS\Microsiga\Protheus\ferramentas\ReiniciarServicos.bat 1 3
+
+if ( (Read-Host "Deseja copiar o RPO da COMP para a produção? (S/N)" ).ToUpper() -like "S" ) {
+    if ( execRotin (configParam) ){
+        if ( (Read-Host "Deseja reiniciar os serviços Jobs? (S/N)").ToUpper() -like "S" ){
+            ## Script que gerencia os serviços do Protheus - 1 = Serviços Jobs, 3 - Reiniciar serviços
+            \\192.168.80.18\c$\TOTVS\Microsiga\Protheus\ferramentas\ReiniciarServicos.bat 1 3
+        }
+    }
+}
+
 ###############################################
 ###############################################
 
