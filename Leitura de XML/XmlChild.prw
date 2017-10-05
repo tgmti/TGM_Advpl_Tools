@@ -1,5 +1,6 @@
 #Include 'Protheus.ch'
 
+
 //====================================================================================================================\\
 /*/{Protheus.doc}XmlChild
   ====================================================================================================================
@@ -19,8 +20,9 @@ User Function XmlChild( oXml, xTag, cTipRet, cResVal, xConteudo, lValido, nOpcAr
 	Local nLen
 	Local lExit		:= .F.
 	Local oNivelAt	:= oXml //TODO:Testar se é por referência
+	Local lRetPad	:= ValType(cTipRet)=="C" .And. cTipRet $ "A/C/N/D/H/O"
 
-	Default cTipRet	:= "C"	// C = Caractere, A = Array, D = Data, N = Número, H = Hora
+	Default cTipRet	:= "C"	// C = Caractere, A = Array, D = Data, N = Número, H = Hora, O = Objeto
 	Default cResVal	:= "R"	// V = Validação, R = Resultado
 	Default lValido	:= .F.
 	Default nOpcArr	:= 1	// 0 - Primeiro elemento, 1 - Primeiro elemento com valor
@@ -32,8 +34,8 @@ User Function XmlChild( oXml, xTag, cTipRet, cResVal, xConteudo, lValido, nOpcAr
 	nLen:= Len(aTag)
 
 	While !lExit .And. nI <= nLen
-		If ! Empty( XmlChildEx(oNivelAt, aTag[nI] ) )
-			oNivelAt:= XmlChildEx(oNivelAt, aTag[nI] )
+		If ! Empty( XmlChildEx(oNivelAt, Upper(aTag[nI]) ) )
+			oNivelAt:= XmlChildEx(oNivelAt, Upper(aTag[nI]) )
 			If ValType( oNivelAt )=="A" .And. nI < nLen
 
 				For nJ:= 1 To Len(oNivelAt)
@@ -48,11 +50,17 @@ User Function XmlChild( oXml, xTag, cTipRet, cResVal, xConteudo, lValido, nOpcAr
 			ElseIf nI == nLen
 
 				xResult:= oNivelAt
-				If cTipRet != "A" .And. ValType(xResult)=="O" .And. ! Empty( XmlChildEx(xResult, 'TEXT' ) )
-					xResult:= XmlChildEx(xResult, 'TEXT' )
-				ElseIf cTipRet == "A" .And. ValType(xResult) == "O"
-					xResult:= { xResult }
+
+				If cTipRet != ValType(xResult)
+
+					If cTipRet != "A" .And. ValType(xResult)=="O" .And. ! Empty( XmlChildEx(xResult, 'TEXT' ) )
+						xResult:= XmlChildEx(xResult, 'TEXT' )
+					ElseIf cTipRet == "A" .And. ValType(xResult) == "O"
+						xResult:= { xResult }
+					EndIf
+
 				EndIf
+
 			EndIf
 
 		Else
@@ -61,28 +69,41 @@ User Function XmlChild( oXml, xTag, cTipRet, cResVal, xConteudo, lValido, nOpcAr
 		nI++
 	EndDo
 
-	If xResult != Nil
-		If cTipRet == "N"
-			xResult:= Val(xResult)
-		ElseIf cTipRet == "D"
-			xResult:= Stod(StrTran(xResult,"-",""))
-		ElseIf cTipRet == "H"
-			If At("T",xResult) > 0
-				xResult:= StrTran(SubStr( xResult, At("T",xResult)+1, 5 ),":","")
-			EndIf
-		EndIf
-	Else
-		If cTipRet == "N"
-			xResult:= 0
-		ElseIf cTipRet == "D"
-			xResult:= CToD("  /  /    ")
-		ElseIf cTipRet == "H"
-			xResult:= "00:00"
-		ElseIf cTipRet == "C"
-			xResult:= ""
+	If lRetPad
+		If cTipRet $ "C/N/D/H"
+			lRetPad:= Empty(xResult) .Or. ValType(xResult) != "C"
+		Else
+			lRetPad:= ValType(xResult) != cTipRet
 		EndIf
 	EndIf
-	xConteudo:= xResult
+
+	If cTipRet == "C" .And. lRetPad
+		xResult:= ""
+	ElseIf cTipRet == "O" .And. lRetPad
+		xResult:= Nil
+	ElseIf cTipRet == "A" .And. lRetPad
+		If ValType(xResult) == "O"
+			xResult:= { xResult }
+		Else
+			xResult:= {}
+		Endif
+	ElseIf cTipRet == "N"
+		xResult:= If(lRetPad, 0, Val(xResult))
+	ElseIf cTipRet == "D"
+		xResult:= If(lRetPad, CTod("  /  /    "), Stod(StrTran(xResult,"-","")))
+	ElseIf cTipRet == "H"
+		If ! lRetPad .And. At("T",xResult) > 0
+			xResult:= StrTran(SubStr( xResult, At("T",xResult)+1, 5 ),":","")
+		Else
+			xResult:= "0000"
+		EndIf
+	EndIf
+
+	/*If xResult != Nil
+		xConteudo:= xResult
+	ElseIf xConteudo != Nil
+		xResult:= xConteudo
+	EndIf*/
 
 	If cResVal == "V"
 		xRet:= lValido
