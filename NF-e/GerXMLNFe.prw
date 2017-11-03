@@ -20,21 +20,25 @@ User Function GerXMLNFe()
 	Local nTipo:= 0
 	Local cDirExp:= ""
 	Local lRetExp:= .F.
+	Local oStepWiz
+	Local oStep1
+	Local oStep2
 
 	oStepWiz:= FWWizardControl():New(/*oPanelBkg*/)//Instancia a classe FWWizard
+	oStepWiz:ActiveUISteps()
 
 	// Passo 1 - Tipo e Diretório de Exportação
-	oNewPag:= oStepWiz:AddStep("1", {|Panel|nTipo:= 0, SelTipo(Panel)})
-	oNewPag:SetStepDescription("Tipo e Diretório de Exportação")
+	oStep1:= oStepWiz:AddStep("1", {|Panel|nTipo:= 0, SelTipo(Panel)})
+	oStep1:SetStepDescription("Tipo e Diretório de Exportação")
 
-	oNewPag:SetNextAction({|| nTipo:= Val(Left(MV_PAR01,1)), cDirExp:= AllTrim(MV_PAR02), ( ! Empty(nTipo) .And. ExistDir(cDirExp) ) })
+	oStep1:SetNextAction({|| nTipo:= Val(Left(MV_PAR01,1)), cDirExp:= AllTrim(MV_PAR02), ( ! Empty(nTipo) .And. ExistDir(cDirExp) ) })
 
 	// Passo 2 - Dados para Exportação
-	oNewPag:= oStepWiz:AddStep("2", {|Panel|SelFiltros(Panel, nTipo)})
-	oNewPag:SetStepDescription("Filtros")
+	oStep2:= oStepWiz:AddStep("2", {|Panel|SelFiltros(Panel, nTipo)})
+	oStep2:SetStepDescription("Filtros")
 
 	// Execução - Exportação do XML
-	oNewPag:SetNextAction( {||	FWMsgRun(	/*oComp*/, {|oSay| lRetExp:= SfExport(nTipo, cDirExp) }, ;
+	oStep2:SetNextAction( {||	FWMsgRun(	/*oComp*/, {|oSay| lRetExp:= SfExport(nTipo, cDirExp) }, ;
 												/*cHeader*/, /*cText*/"Exportando XML..." ) ;
 									, lRetExp } )
 
@@ -63,9 +67,9 @@ Static function SelTipo(oPanel)
 
 	Local cLoad:= "GERXMLSTIP"
 	Local aPerg:= {}
-	Local aRet:= {}
 	Local lRet:= .F.
 	Local nOpcoes
+	Private aRetTipo:= {}
 
 	/*
 	 2 - Combo
@@ -78,7 +82,7 @@ Static function SelTipo(oPanel)
 	*/
 
 	aAdd( aPerg, { 2, "Tipo", 1, {"1-Saída", "2-Entrada", "3-CT-e", "4-MDF-e", "5-MDF-e 3.0"}, 60, /*cValid*/, .T. } )
-	aAdd(aRet, aTail(aPerg)[3])
+	aAdd(aRetTipo, aTail(aPerg)[3])
 
 	/* 6 - File
 	  [2] : Descrição
@@ -94,9 +98,9 @@ Static function SelTipo(oPanel)
 	*/
 	nOpcoes:= GETF_LOCALHARD + GETF_NETWORKDRIVE  + GETF_RETDIRECTORY
 	aAdd( aPerg, { 6, "Diretório para gravação", "", /*cPicTure*/, 'ExistDir(AllTrim(MV_PAR02))', /*cWhen*/, 60, .T., /*cTipos*/, "C:\", nOpcoes } )
-	aAdd(aRet, aTail(aPerg)[3])
+	aAdd(aRetTipo, aTail(aPerg)[3])
 
-	Parambox ( aPerg,  /*cTitle*/, @aRet, /*bOk*/, /*aButtons*/, /*lCentered*/.T., /*nPosX*/, /*nPosy*/, /*oDlgWizard*/oPanel, cLoad, /*lCanSave*/.T., /*lUserSave*/.T. )
+	Parambox ( aPerg,  /*cTitle*/, @aRetTipo, /*bOk*/, /*aButtons*/, /*lCentered*/.T., /*nPosX*/, /*nPosy*/, /*oDlgWizard*/oPanel, cLoad, /*lCanSave*/.T., /*lUserSave*/.T. )
 
 Return ( Nil )
 // FIM da Funcao SelTipo
@@ -120,45 +124,45 @@ Static Function SelFiltros(oPanel, nTipo)
 
 	Local cLoad:= "GERXMLSFIL"
 	Local aPerg:= {}
-	Local aRet:= {}
+	Private aRetFil:= {}
 
 
 	aAdd( aPerg, { 2, "Ambiente", 1, {"1-Producao", "2-Homologacao"}, 60, /*cValid*/, .T. } )
-	aAdd(aRet, aTail(aPerg)[3])
+	aAdd(aRetFil, aTail(aPerg)[3])
 
 	If nTipo == 1 // Nota Saída
 		aAdd( aPerg, { /*nTipo*/1, "Série", Space(TamSX3("F2_SERIE")[1]), "@!", /*cValid*/, /*cF3*/"01", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ .T. } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 		aAdd( aPerg, { /*nTipo*/1, "Nota Saída", Space(TamSX3("F2_DOC")[1]), "@!", /*cValid*/, /*cF3*/"SF2", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 
 	ElseIf nTipo == 2 // Nota Entrada
 		aAdd( aPerg, { /*nTipo*/1, "Série", Space(TamSX3("F1_SERIE")[1]), "@!", /*cValid*/, /*cF3*/"01", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ .T. } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 		aAdd( aPerg, { /*nTipo*/1, "Nota Entrada", Space(TamSX3("F1_DOC")[1]), "@!", /*cValid*/, /*cF3*/"SF102", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 		aAdd( aPerg, { /*nTipo*/1, "Fornecedor", Space(TamSX3("A2_COD")[1]), "@!", /*cValid*/, /*cF3*/"SA2", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 		aAdd( aPerg, { /*nTipo*/1, "Loja", Space(TamSX3("A2_LOJA")[1]), "@!", /*cValid*/, /*cF3*/"SA22", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 
 	ElseIf nTipo == 3 // CT-e
 		aAdd( aPerg, { /*nTipo*/1, "Série", Space(TamSX3("F2_SERIE")[1]), "@!", /*cValid*/, /*cF3*/"01", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ .T. } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 		aAdd( aPerg, { /*nTipo*/1, "Conhecimento", Space(TamSX3("F2_DOC")[1]), "@!", /*cValid*/, /*cF3*/"SF2", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 
 	ElseIf nTipo == 4 .Or. nTipo == 5 // MDF-e ou MDF-e 3.0
 		aAdd( aPerg, { /*nTipo*/1, "Fil.Manif.", Space(TamSX3("DTX_FILMAN")[1]), "@!", /*cValid*/, /*cF3*/, /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ .T. } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 		aAdd( aPerg, { /*nTipo*/1, "Serie", Space(TamSX3("DTX_SERMAN")[1]), "@!", /*cValid*/, /*cF3*/"01", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ .T. } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 		aAdd( aPerg, { /*nTipo*/1, "Manifesto", Space(TamSX3("DTX_MANIFE")[1]), "@!", /*cValid*/, /*cF3*/"DTX", /*cWhen*/, /*nTam*/60, /*lObrigatorio*/ .T. } )
-		aAdd(aRet, aTail(aPerg)[3])
+		aAdd(aRetFil, aTail(aPerg)[3])
 
 	EndIf
 
-	Parambox( aPerg,/*cTitle*/, @aRet, /*bOk*/, /*aButtons*/, /*lCentered*/, /*nPosX*/, /*nPosy*/, oPanel, cLoad, /*lCanSave*/.T., /*lUserSave*/.T. )
+	Parambox( aPerg,/*cTitle*/, @aRetFil, /*bOk*/, /*aButtons*/, /*lCentered*/, /*nPosX*/, /*nPosy*/, oPanel, cLoad, /*lCanSave*/.T., /*lUserSave*/.T. )
 
 Return ( Nil )
 // FIM da Funcao SelFiltros
@@ -284,6 +288,7 @@ Static Function SfExport(nTipo, cDirExp)
 			// Se a exportação não funcionou, deleta o arquivo criado
 			If lRet
 				MsgInfo("Arquivo "+cDirExp+cArqXml+" criado com sucesso!","Sucesso")
+				ShellExecute("open", cDirExp+cArqXml, "", "", 1 )
 			Else
 				Help('',1,'',,"Erro ao gravar o arquivo "+cDirExp+cArqXml+"!",03,00)
 				ferase(cDirExp+cArqXml)
