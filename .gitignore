@@ -1,0 +1,29 @@
+
+## Arquivos e diretorios do eclipse e TDS
+.amateras
+.dataservers
+.project
+.metadata
+.settings
+.state
+org.eclipse.ltk.core.refactoring.prefs
+
+## Arquivos temporarios e lixos gerados pelos compiladores e editores ADVPL
+.bak
+.ppx_prw
+.erx_prw
+.ppx_prx
+.erx_prx
+.ppo
+.errprw
+
+## Arquivos grandes presentes em alguns projetos
+*.ptm		## Patches do Protheus
+*.dbf		## Arquivos DBF
+
+## Diretorio de Configuracoes do Visual Studio Code
+.vscode
+
+## Arquivos criados por outros versionadores
+.svnignore
+.svn
