@@ -76,7 +76,7 @@ Return (SELF)
 	@obs
 	Formato da Propriedade: { "X2_CHAVE", "SC5" }
 
-	Quando for somente atualização, incluir a propriedade: { "SOMENTE_UPDATE", .T. }
+	Quando for somente atualização, incluir a propriedade: { "UPDCUSTOM_SOUPDATE", .T. }
 
 	Formato dos arquivos:
 	SX2: "X2_CHAVE"  , "X2_PATH"   , "X2_ARQUIVO", "X2_NOME"   , "X2_NOMESPA", "X2_NOMEENG", "X2_MODO"   , ;
@@ -312,7 +312,7 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 
 				If Len( aArqUpd ) > 0
 					oProcess:IncRegua1( "Dicionário de dados" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-					oProcess:SetRegua2( "Atualizando campos/índices" )
+					oProcess:SetRegua2( Len( aArqUpd ) )
 
 					// Alteração física dos arquivos
 					__SetX31Mode( .F. )
@@ -417,6 +417,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 	Local nL
 	Local nX
 	Local cAlias
+	Local aRecOrd
 
 	AutoGrLog( "Ínicio da Atualização do arquivo " + cAliSX + CRLF )
 
@@ -432,7 +433,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 			RecLock(cAliSX,lInclui)
 			For nX:= 1 To Len(aUpdates[nL])
 
-				If ! aUpdates[nL][nX][1] == "SOMENTE_UPDATE"
+				If ! "UPDCUSTOM_" $ aUpdates[nL][nX][1]
 
 					nPosField:= (cAliSX)->(FieldPos(aUpdates[nL][nX][1]))
 
@@ -461,11 +462,20 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 			If lOk
 				AutoGrLog(' - Chave: ' + cChave + if(lInclui,' incluido',' alterado') + ' com sucesso!' + CRLF )
 				If ! Empty(cAlias) .And. aScan(aArqUpd, {|x| x == cAlias }) == 0
-					//aAdd(aArqUpd, cAlias) //TODO: Habilitar a atualização do banco
+					aAdd(aArqUpd, cAlias)
 				EndIf
 			EndIf
 
 			(cAliSX)->(MsUnlock())
+
+			If ! Empty( ::GetProperty(aUpdates[nL], "UPDCUSTOM_X3REORDER") )
+				aRecOrd:= ::GetProperty(aUpdates[nL], "UPDCUSTOM_X3REORDER")
+				For nX:= 1 To Len(aRecOrd)
+					SX3->(DbGoto(aRecOrd[nX][1]))
+					SX3->X3_ORDEM:= aRecOrd[nX][2]
+					SX3->(MsUnlock())
+				Next nX
+			EndIf
 
 		EndIf
 	
@@ -493,6 +503,11 @@ Return NIL
 METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 	Local lRet:= .F.
+	Local nRecno
+	Local aRecOrd
+	Local cOrdem
+	Local nOrdem
+	Local nOrdX3Atu
 
 	Do Case
 		Case (cAliSX == "SX3")
@@ -501,7 +516,7 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			cChave:= ::GetProperty(aUpdate, "X3_CAMPO")
 			If ! Empty(cChave)
 				lInclui:= ! DbSeek(cChave)
-				If lInclui .And. ::GetProperty(aUpdate, "SOMENTE_UPDATE")
+				If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
 					AutoGrLog( "ERRO: Campo " + cChave + " não existe no SX3." )
 				Else
 					lRet:= .T.
@@ -543,6 +558,63 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 					// Ajustes para inclusão de campo SX3 - FIM
 					// ========================================================
 
+					// ========================================================
+					// Ajusta Ordem do campo
+					// ========================================================
+					nRecno:= If(lInclui, 0, Recno())
+					cOrdem:= ::GetProperty(aUpdate, "X3_ORDEM")
+					aRecOrd:= {}
+
+					If Empty(cOrdem)
+						cOrdem:= "ZZ"
+					EndIf
+
+					If Len(cOrdem) == 2
+						nOrdem:= Val(RetAsc(cOrdem,3,.F.))
+					Else
+						nOrdem:= Val(cOrdem)
+					EndIf
+
+					cOrdem:= RetAsc(nOrdem,2,.T.)
+
+					DbSetOrder(1)
+					DbSeek(cAlias + cOrdem, .T.) 
+					
+					If cAlias != X3_ARQUIVO
+						dbSkip(-1)
+					EndIf
+
+					If cAlias == X3_ARQUIVO
+						nOrdX3Atu:= Val(RetAsc(SX3->X3_ORDEM,3,.F.))
+						If ( nOrdem > nOrdX3Atu )
+							nOrdem:= nOrdX3Atu + 1
+						ElseIf nOrdem == nOrdX3Atu
+							// Reordena os próximos SX3
+							While !Eof() .And. X3_ARQUIVO == cAlias
+								nOrdX3Atu++
+								aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
+								dbSkip()
+							EndDo
+						EndIf
+
+						If nOrdem <= 0
+							nOrdem:= 1
+						EndIf
+					Else
+						nOrdem:= 1
+					EndIf
+
+					aAdd(aUpdate, { "X3_ORDEM", RetAsc(nOrdem,2,.T.) })
+
+					If Len(aRecOrd) > 0
+						aAdd(aUpdate, { "UPDCUSTOM_X3REORDER", aRecOrd })
+					EndIf
+
+					DbSetOrder(2)
+					If nRecno != 0
+						dbGoTo(nRecno)
+					EndIf
+
 				EndIf
 			Else
 				AutoGrLog( "ERRO: Propriedade 'Nome do campo' não identificada para atualização do SX3." )
@@ -575,16 +647,16 @@ METHOD GetProperty(aProper, cProper) CLASS UPDCUSTOM
 	nPos:= aScan(aProper, {|x| x[1] == cProper })
 
 	If nPos > 0
-		//  Se informar a Propriedade SOMENTE_UPDATE não lógica, considera verdadeiro.
-		If cProper == "SOMENTE_UPDATE" .And. ( Len(aProper[nPos]) < 2 .Or. ValType( aProper[nPos][2] ) != "L" )
+		//  Se informar a Propriedade UPDCUSTOM_SOUPDATE não lógica, considera verdadeiro.
+		If cProper == "UPDCUSTOM_SOUPDATE" .And. ( Len(aProper[nPos]) < 2 .Or. ValType( aProper[nPos][2] ) != "L" )
 			xRet:= .T.
 		Else
 			xRet:= aProper[nPos][2]
 		EndIf
 	EndIf
 
-	// Padrão para a propriedade SOMENTE_UPDATE é .F.
-	If cProper == "SOMENTE_UPDATE" .And. ValType( xRet ) != "L"
+	// Padrão para a propriedade UPDCUSTOM_SOUPDATE é .F.
+	If cProper == "UPDCUSTOM_SOUPDATE" .And. ValType( xRet ) != "L"
 		xRet:= .F.
 	EndIf
 
