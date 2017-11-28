@@ -598,13 +598,14 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 						ElseIf nOrdem == nOrdX3Atu
 							// Reordena os próximos SX3
 							SX3->(dbGoTop())
+							DbSeek(cAlias)
 							nOrdX3Atu:= 0
 							While !Eof() .And. X3_ARQUIVO == cAlias
-								If nOrdX3Atu == nOrdem
+								If AllTrim(X3_CAMPO) != AllTrim(cChave)
 									nOrdX3Atu++
-								EndIf
-								If X3_CAMPO != cChave
-									nOrdX3Atu++
+									If nOrdX3Atu == nOrdem
+										nOrdX3Atu++
+									EndIf
 									aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
 								EndIf
 								dbSkip()
