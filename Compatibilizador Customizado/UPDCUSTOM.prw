@@ -1,8 +1,9 @@
 #INCLUDE 'TOTVS.ch'
 #INCLUDE "Protheus.ch"
+#INCLUDE "UPDCUSTOM.CH"
 
 //====================================================================================================================\\
-/*/{Protheus.doc}UDiconarioCustom
+/*/{Protheus.doc}UPDCUSTOM
   ====================================================================================================================
 	@description
 	Classe utilizada para efetuar atualizações de dicionário customizadas
@@ -17,7 +18,7 @@
 
 /*/
 //===================================================================================================================\\
-CLASS UDiconarioCustom
+CLASS UPDCUSTOM
 
 	DATA aSX2
 	DATA aSX3
@@ -35,7 +36,7 @@ CLASS UDiconarioCustom
 	METHOD AddSX1()
 
 ENDCLASS
-// FIM da Definição da Classe UDiconarioCustom
+// FIM da Definição da Classe UPDCUSTOM
 //====================================================================================================================\\
 
 
@@ -49,11 +50,11 @@ ENDCLASS
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
-	@return		Objeto, Instância em da classe UDiconarioCustom
+	@return		Objeto, Instância em da classe UPDCUSTOM
 
 /*/
 //====================================================================================================================\\
-METHOD New() CLASS UDiconarioCustom
+METHOD New() CLASS UPDCUSTOM
 
 Return (SELF)
 // FIM do método New
@@ -70,11 +71,11 @@ Return (SELF)
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
-	@return		Objeto, Instância em da classe UDiconarioCustom
+	@return		Objeto, Instância em da classe UPDCUSTOM
 
 /*/
 //====================================================================================================================\\
-METHOD RunUpdate() CLASS UDiconarioCustom
+METHOD RunUpdate() CLASS UPDCUSTOM
 	Local lOk:= .F.
 	Local aMsg:= {}
 	Local aButton:= {}
@@ -147,11 +148,11 @@ Return
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
-	@return		Objeto, Instância em da classe UDiconarioCustom
+	@return		Objeto, Instância em da classe UPDCUSTOM
 
 /*/
 //====================================================================================================================\\
-METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UDiconarioCustom
+METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 
 	Local aInfo     := {}
 	Local aRecnoSM0 := {}
@@ -414,11 +415,11 @@ Return (lRet)
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
-	@return		Objeto, Instância em da classe UDiconarioCustom
+	@return		Objeto, Instância em da classe UPDCUSTOM
 
 /*/
 //====================================================================================================================\\
-METHOD AddTable(cAlias, cNome, cModo, cModoEmp, cModoUni, aPropAdic) CLASS UDiconarioCustom
+METHOD AddTable(cAlias, cNome, cModo, cModoEmp, cModoUni, aPropAdic) CLASS UPDCUSTOM
 
 	Local nX
 
@@ -458,11 +459,11 @@ Return (Nil)
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
-	@return		Objeto, Instância em da classe UDiconarioCustom
+	@return		Objeto, Instância em da classe UPDCUSTOM
 
 /*/
 //====================================================================================================================\\
-METHOD AddIndex(cAlias, cOrdem, cChave, cDescricao cNickName, aPropAdic) CLASS UDiconarioCustom
+METHOD AddIndex(cAlias, cOrdem, cChave, cDescricao cNickName, aPropAdic) CLASS UPDCUSTOM
 
 	Local nX
 
@@ -500,11 +501,11 @@ Return (Nil)
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
-	@return		Objeto, Instância em da classe UDiconarioCustom
+	@return		Objeto, Instância em da classe UPDCUSTOM
 
 /*/
 //====================================================================================================================\\
-METHOD AddField(cAlias, cCampo, cOrdem, cTipo, cTitulo, cDescricao, nTamanho, nDecimal, aPropAdic) CLASS UDiconarioCustom
+METHOD AddField(cAlias, cCampo, cOrdem, cTipo, cTitulo, cDescricao, nTamanho, nDecimal, aPropAdic) CLASS UPDCUSTOM
 
 	Local nX
 
