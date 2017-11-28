@@ -477,6 +477,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 				aRecOrd:= ::GetProperty(aUpdates[nL], "UPDCUSTOM_X3REORDER")
 				For nX:= 1 To Len(aRecOrd)
 					SX3->(DbGoto(aRecOrd[nX][1]))
+					RecLock("SX3",.F.)
 					SX3->X3_ORDEM:= aRecOrd[nX][2]
 					SX3->(MsUnlock())
 				Next nX
@@ -596,7 +597,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 							nOrdem:= nOrdX3Atu + 1
 						ElseIf nOrdem == nOrdX3Atu
 							// Reordena os próximos SX3
+							SX3->(dbGoTop())
+							nOrdX3Atu:= 0
 							While !Eof() .And. X3_ARQUIVO == cAlias
+								If nOrdX3Atu == nOrdem
+									nOrdX3Atu++
+								EndIf
 								If X3_CAMPO != cChave
 									nOrdX3Atu++
 									aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
