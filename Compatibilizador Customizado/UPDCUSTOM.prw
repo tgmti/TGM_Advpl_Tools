@@ -121,11 +121,13 @@ Return (Nil)
 
 /*/
 //====================================================================================================================\\
-METHOD RunUpdate() CLASS UPDCUSTOM
+METHOD RunUpdate(lAuto) CLASS UPDCUSTOM
 	Local lOk:= .F.
 	Local aMsg:= {}
 	Local aButton:= {}
 	Local aMarcadas:= {}
+
+	Default lAuto:= .F.
 
 	Private oMainWnd  := NIL
 	Private oProcess  := NIL
@@ -151,12 +153,12 @@ METHOD RunUpdate() CLASS UPDCUSTOM
 	FormBatch( ::cTitulo,  aMsg,  aButton )
 
 	If lOk
-		aMarcadas := EscEmpresa()
+		aMarcadas := EscEmpresa(lAuto)
 
 		If !Empty( aMarcadas )
 
 			If MsgNoYes( "Confirma a atualização dos dicionários ?", ::cTitulo )
-				oProcess := MsNewProcess():New( { | lEnd | lOk := ::FSTProc( @lEnd, aMarcadas ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
+				oProcess := MsNewProcess():New( { | lEnd | lOk := ::FSTProc( @lEnd, aMarcadas, lAuto ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
 				oProcess:Activate()
 
 				If lOk
@@ -289,10 +291,8 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 				AutoGrLog( Replicate( "-", 128 ) )
 				AutoGrLog( " " )
 
-				If !lAuto
-					AutoGrLog( Replicate( "-", 128 ) )
-					AutoGrLog( "Empresa : " + SM0->M0_CODIGO + "/" + SM0->M0_NOME + CRLF )
-				EndIf
+				AutoGrLog( Replicate( "-", 128 ) )
+				AutoGrLog( "Empresa : " + SM0->M0_CODIGO + "/" + SM0->M0_NOME + CRLF )
 
 				oProcess:SetRegua1( Len(::aSXFile) )
 
@@ -355,7 +355,7 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 
 			Next nI
 
-			If !lAuto
+			If .T. //!lAuto //TODO: Ajustar a condição
 
 				cTexto := LeLog()
 
@@ -455,7 +455,7 @@ Static Function FSAtuFile(cAliSX, aUpdates)
 			If lOk
 				AutoGrLog(cAliSX + ' - Chave: ' + cChave + if(lInclui,'incluido','alterado') + ' com sucesso!' + CRLF )
 				If ! Empty(cAlias) .And. aScan(aArqUpd, {|x| x == cAlias }) == 0
-					//aAdd(aArqUpd, cAlias)
+					//aAdd(aArqUpd, cAlias) //TODO: Habilitar a atualização do banco
 				EndIf
 			EndIf
 
@@ -529,7 +529,7 @@ Static Function FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui)
 				If lInclui .And. Empty( GetProperty(aUpdate, "X3_PYME") )
 					aAdd(aUpdate, { "X3_PYME", "S" })
 				EndIf
-				
+
 				// ========================================================
 				// Ajustes para inclusão de campo SX3 - FIM
 				// ========================================================

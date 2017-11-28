@@ -27,7 +27,7 @@ Função genérica para escolha de Empresa, montada pelo SM0
 @version 1.0
 /*/
 //--------------------------------------------------------------------
-Static Function EscEmpresa()
+Static Function EscEmpresa(lTodas)
 
 	//---------------------------------------------
 	// Parâmetro  nTipo
@@ -57,6 +57,7 @@ Static Function EscEmpresa()
 
 	Local   aMarcadas := {}
 
+	Default lTodas:= .F.
 
 	If !MyOpenSm0(.F.)
 		Return aRet
@@ -72,6 +73,9 @@ Static Function EscEmpresa()
 
 		If aScan( aVetor, {|x| x[2] == SM0->M0_CODIGO} ) == 0
 			aAdd(  aVetor, { aScan( aMarcadas, {|x| x[1] == SM0->M0_CODIGO .and. x[2] == SM0->M0_CODFIL} ) > 0, SM0->M0_CODIGO, SM0->M0_CODFIL, SM0->M0_NOME, SM0->M0_FILIAL } )
+			If lTodas
+				aAdd( aRet, { aTail(aVetor)[2] , aTail(aVetor)[3], aTail(aVetor)[2] +  aTail(aVetor)[3] } )
+			EndIf
 		EndIf
 
 		dbSkip()
@@ -79,47 +83,52 @@ Static Function EscEmpresa()
 
 	RestArea( aSalvSM0 )
 
-	Define MSDialog  oDlg Title "" From 0, 0 To 280, 395 Pixel
+	If ! lTodas
 
-	oDlg:cToolTip := "Tela para Múltiplas Seleções de Empresas/Filiais"
+		Define MSDialog  oDlg Title "" From 0, 0 To 280, 395 Pixel
 
-	oDlg:cTitle   := "Selecione a(s) Empresa(s) para Atualização"
+		oDlg:cToolTip := "Tela para Múltiplas Seleções de Empresas/Filiais"
 
-	@ 10, 10 Listbox  oLbx Var  cVar Fields Header " ", " ", "Empresa" Size 178, 095 Of oDlg Pixel
-	oLbx:SetArray(  aVetor )
-	oLbx:bLine := {|| {IIf( aVetor[oLbx:nAt, 1], oOk, oNo ), ;
-	aVetor[oLbx:nAt, 2], ;
-	aVetor[oLbx:nAt, 4]}}
-	oLbx:BlDblClick := { || aVetor[oLbx:nAt, 1] := !aVetor[oLbx:nAt, 1], VerTodos( aVetor, @lChk, oChkMar ), oChkMar:Refresh(), oLbx:Refresh()}
-	oLbx:cToolTip   :=  oDlg:cTitle
-	oLbx:lHScroll   := .F. // NoScroll
+		oDlg:cTitle   := "Selecione a(s) Empresa(s) para Atualização"
 
-	@ 112, 10 CheckBox oChkMar Var  lChk Prompt "Todos" Message "Marca / Desmarca"+ CRLF + "Todos" Size 40, 007 Pixel Of oDlg;
-	on Click MarcaTodos( lChk, @aVetor, oLbx )
+		@ 10, 10 Listbox  oLbx Var  cVar Fields Header " ", " ", "Empresa" Size 178, 095 Of oDlg Pixel
+		oLbx:SetArray(  aVetor )
+		oLbx:bLine := {|| {IIf( aVetor[oLbx:nAt, 1], oOk, oNo ), ;
+		aVetor[oLbx:nAt, 2], ;
+		aVetor[oLbx:nAt, 4]}}
+		oLbx:BlDblClick := { || aVetor[oLbx:nAt, 1] := !aVetor[oLbx:nAt, 1], VerTodos( aVetor, @lChk, oChkMar ), oChkMar:Refresh(), oLbx:Refresh()}
+		oLbx:cToolTip   :=  oDlg:cTitle
+		oLbx:lHScroll   := .F. // NoScroll
 
-	// Marca/Desmarca por mascara
-	@ 113, 51 Say   oSay Prompt "Empresa" Size  40, 08 Of oDlg Pixel
-	@ 112, 80 MSGet oMascEmp Var  cMascEmp Size  05, 05 Pixel Picture "@!"  Valid (  cMascEmp := StrTran( cMascEmp, " ", "?" ), oMascEmp:Refresh(), .T. ) ;
-	Message "Máscara Empresa ( ?? )"  Of oDlg
-	oSay:cToolTip := oMascEmp:cToolTip
+		@ 112, 10 CheckBox oChkMar Var  lChk Prompt "Todos" Message "Marca / Desmarca"+ CRLF + "Todos" Size 40, 007 Pixel Of oDlg;
+		on Click MarcaTodos( lChk, @aVetor, oLbx )
 
-	@ 128, 10 Button oButInv    Prompt "&Inverter"  Size 32, 12 Pixel Action ( InvSelecao( @aVetor, oLbx, @lChk, oChkMar ), VerTodos( aVetor, @lChk, oChkMar ) ) ;
-	Message "Inverter Seleção" Of oDlg
-	oButInv:SetCss( CSSBOTAO )
-	@ 128, 50 Button oButMarc   Prompt "&Marcar"    Size 32, 12 Pixel Action ( MarcaMas( oLbx, aVetor, cMascEmp, .T. ), VerTodos( aVetor, @lChk, oChkMar ) ) ;
-	Message "Marcar usando" + CRLF + "máscara ( ?? )"    Of oDlg
-	oButMarc:SetCss( CSSBOTAO )
-	@ 128, 80 Button oButDMar   Prompt "&Desmarcar" Size 32, 12 Pixel Action ( MarcaMas( oLbx, aVetor, cMascEmp, .F. ), VerTodos( aVetor, @lChk, oChkMar ) ) ;
-	Message "Desmarcar usando" + CRLF + "máscara ( ?? )" Of oDlg
-	oButDMar:SetCss( CSSBOTAO )
-	@ 112, 157  Button oButOk   Prompt "Processar"  Size 32, 12 Pixel Action (  RetSelecao( @aRet, aVetor ), oDlg:End()  ) ;
-	Message "Confirma a seleção e efetua" + CRLF + "o processamento" Of oDlg
-	oButOk:SetCss( CSSBOTAO )
-	@ 128, 157  Button oButCanc Prompt "Cancelar"   Size 32, 12 Pixel Action ( IIf( lTeveMarc, aRet :=  aMarcadas, .T. ), oDlg:End() ) ;
-	Message "Cancela o processamento" + CRLF + "e abandona a aplicação" Of oDlg
-	oButCanc:SetCss( CSSBOTAO )
+		// Marca/Desmarca por mascara
+		@ 113, 51 Say   oSay Prompt "Empresa" Size  40, 08 Of oDlg Pixel
+		@ 112, 80 MSGet oMascEmp Var  cMascEmp Size  05, 05 Pixel Picture "@!"  Valid (  cMascEmp := StrTran( cMascEmp, " ", "?" ), oMascEmp:Refresh(), .T. ) ;
+		Message "Máscara Empresa ( ?? )"  Of oDlg
+		oSay:cToolTip := oMascEmp:cToolTip
 
-	Activate MSDialog  oDlg Center
+		@ 128, 10 Button oButInv    Prompt "&Inverter"  Size 32, 12 Pixel Action ( InvSelecao( @aVetor, oLbx, @lChk, oChkMar ), VerTodos( aVetor, @lChk, oChkMar ) ) ;
+		Message "Inverter Seleção" Of oDlg
+		oButInv:SetCss( CSSBOTAO )
+		@ 128, 50 Button oButMarc   Prompt "&Marcar"    Size 32, 12 Pixel Action ( MarcaMas( oLbx, aVetor, cMascEmp, .T. ), VerTodos( aVetor, @lChk, oChkMar ) ) ;
+		Message "Marcar usando" + CRLF + "máscara ( ?? )"    Of oDlg
+		oButMarc:SetCss( CSSBOTAO )
+		@ 128, 80 Button oButDMar   Prompt "&Desmarcar" Size 32, 12 Pixel Action ( MarcaMas( oLbx, aVetor, cMascEmp, .F. ), VerTodos( aVetor, @lChk, oChkMar ) ) ;
+		Message "Desmarcar usando" + CRLF + "máscara ( ?? )" Of oDlg
+		oButDMar:SetCss( CSSBOTAO )
+		@ 112, 157  Button oButOk   Prompt "Processar"  Size 32, 12 Pixel Action (  RetSelecao( @aRet, aVetor ), oDlg:End()  ) ;
+		Message "Confirma a seleção e efetua" + CRLF + "o processamento" Of oDlg
+		oButOk:SetCss( CSSBOTAO )
+		@ 128, 157  Button oButCanc Prompt "Cancelar"   Size 32, 12 Pixel Action ( IIf( lTeveMarc, aRet :=  aMarcadas, .T. ), oDlg:End() ) ;
+		Message "Cancela o processamento" + CRLF + "e abandona a aplicação" Of oDlg
+		oButCanc:SetCss( CSSBOTAO )
+
+		Activate MSDialog  oDlg Center
+	
+	EndIf
+
 
 	RestArea( aSalvAmb )
 	dbSelectArea( "SM0" )

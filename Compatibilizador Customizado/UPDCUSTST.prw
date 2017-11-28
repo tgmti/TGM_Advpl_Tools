@@ -28,4 +28,24 @@ User Function UPDCUSTST
 	oCompat:AddProperty("SX3", aCpo1)
 	oCompat:RunUpdate()
 
+
+	RpcSetEnv( "99", "01" )
+	DbSelectArea("SX3")
+	DbSetOrder(2)
+	If DbSeek("C5_ZTST001")
+		Alert("Campo C5_ZTST001 criado no SX3.")
+
+		DbSelectArea("SC5")
+		If FieldPos("C5_ZTST001") > 0
+			Alert("Campo C5_ZTST001 criado no banco de dados.")
+		Else
+			Alert("Campo C5_ZTST001 NÃO criado no banco de dados!!!")
+		EndIf
+
+	Else
+		Alert("Campo C5_ZTST001 NÃO criado no SX3!!!!")
+	EndIf
+
+
+
 Return
