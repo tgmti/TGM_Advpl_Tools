@@ -20,12 +20,8 @@
 //===================================================================================================================\\
 CLASS UPDCUSTOM
 
-	DATA aSX2
-	DATA aSX3
-	DATA aSIX
-	DATA aSX6
-	DATA aSX7
-	DATA aSX1
+	DATA aSXFile
+	DATA cTitulo
 
 	METHOD New() CONSTRUCTOR
 	METHOD AddProperty()
@@ -51,7 +47,12 @@ ENDCLASS
 
 /*/
 //====================================================================================================================\\
-METHOD New() CLASS UPDCUSTOM
+METHOD New(cTitulo) CLASS UPDCUSTOM
+
+	Default cTitulo:= "Compatibilizador de campos de usuário"
+
+	::cTitulo:= cTitulo
+	::aSXFile:= {}
 
 Return (SELF)
 // FIM do método New
@@ -86,27 +87,19 @@ Return (SELF)
 METHOD AddProperty(cSXFile, aPropAdic) CLASS UPDCUSTOM
 
 	Local nX
-	Local aSXFile
+	Local nPosSX:= aScan(::aSXFile, {|x| x[1] == cSXFile })
+	Local aSxAtu
 
-	Do Case
-		Case (cSXFile == "SX1")
-			aSXFile:= ::aSX1 
-		Case (cSXFile == "SX2")
-			aSXFile:= ::aSX2
-		Case (cSXFile == "SX3")
-			aSXFile:= ::aSX3 
-		Case (cSXFile == "SX6")
-			aSXFile:= ::aSX6
-		Case (cSXFile == "SX7")
-			aSXFile:= ::aSX7
-		Case (cSXFile == "SIX")
-			aSXFile:= ::aSIX
-	EndCase
+	If nPosSX == 0
+		aAdd(::aSXFile, { cSXFile, {} })
+		nPosSX:= Len(::aSXFile)
+	EndIf
 
-	aAdd( aSXFile, {} )
+	aSxAtu:= ::aSXFile[nPosSX][2]
+	aAdd( aSxAtu, {} )
 
 	For nX:= 1 To Len(aPropAdic)
-		aAdd( aTail(aSXFile), {aPropAdic[nX,1], aPropAdic[nX,2]} )
+		aAdd( aTail(aSxAtu), {aPropAdic[nX,1], aPropAdic[nX,2]} )
 	Next nX
 
 Return (Nil)
@@ -137,8 +130,6 @@ METHOD RunUpdate() CLASS UPDCUSTOM
 	Private oMainWnd  := NIL
 	Private oProcess  := NIL
 	Private cDirComp  := NIL
-	Private cFunAux   := cFuncUpd
-
 
 	#IFDEF TOP
 	    TCInternal( 5, "*OFF" ) // Desliga Refresh no Lock do Top
@@ -157,14 +148,14 @@ METHOD RunUpdate() CLASS UPDCUSTOM
 	aAdd(  aButton, {  1, .T., { || lOk := .T., FechaBatch() } } )
 	aAdd(  aButton, {  2, .T., { || lOk := .F., FechaBatch() } } )
 
-	FormBatch( cTitulo,  aMsg,  aButton )
+	FormBatch( ::cTitulo,  aMsg,  aButton )
 
 	If lOk
 		aMarcadas := EscEmpresa()
 
 		If !Empty( aMarcadas )
 
-			If MsgNoYes( "Confirma a atualização dos dicionários ?", cTitulo )
+			If MsgNoYes( "Confirma a atualização dos dicionários ?", ::cTitulo )
 				oProcess := MsNewProcess():New( { | lEnd | lOk := ::FSTProc( @lEnd, aMarcadas ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
 				oProcess:Activate()
 
@@ -218,14 +209,14 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 	Local cTopBuild := ""
 	Local lOpen     := .F.
 	Local lRet      := .T.
-	Local nI        := 0
 	Local nPos      := 0
 	Local nRecno    := 0
-	Local nX        := 0
 	Local oDlg      := NIL
 	Local oFont     := NIL
 	Local oMemo     := NIL
-	Local nQtdAtu    := 0
+	Local nI        := 0
+	Local nX        := 0
+	Local nL        := 0
 
 	Default lAuto:= .F.
 
@@ -303,118 +294,57 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 					AutoGrLog( "Empresa : " + SM0->M0_CODIGO + "/" + SM0->M0_NOME + CRLF )
 				EndIf
 
-				If Len(::aSX1) > 0
-					nQtdAtu++
-				EndIf
+				oProcess:SetRegua1( Len(::aSXFile) )
 
-				If Len(::aSX2) > 0
-					nQtdAtu++
-				EndIf
+				For nL:= 1 To Len(::aSXFile)
 
-				If Len(::aSIX) > 0
-					nQtdAtu++
-				EndIf
+					oProcess:IncRegua1( "Atualizando arquivo " + ::aSXFile[nL][1] + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
 
-				If Len(::aSX3) > 0
-					nQtdAtu++
-				EndIf
+					FSAtuFile(::aSXFile[nL][1], ::aSXFile[nL][2])
 
-				If Len(::aSX6) > 0
-					nQtdAtu++
-				EndIf
+				Next nL
 
-				If Len(::aSX7) > 0
-					nQtdAtu++
-				EndIf
+				If Len( aArqUpd ) > 0
+					oProcess:IncRegua1( "Dicionário de dados" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
+					oProcess:SetRegua2( "Atualizando campos/índices" )
 
-				oProcess:SetRegua1( nQtdAtu )
+					// Alteração física dos arquivos
+					__SetX31Mode( .F. )
 
-				If Len(::aSX2) > 0
-					//------------------------------------
-					// Atualiza o dicionário SX2
-					//------------------------------------
-					oProcess:IncRegua1( "Dicionário de arquivos (SX2)" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-					FSAtuSX2(::aSX2)
-				EndIf
+					If FindFunction(cTCBuild)
+						cTopBuild := &cTCBuild.()
+					EndIf
 
-				If Len(::aSX3) > 0
-					//------------------------------------
-					// Atualiza o dicionário SX3
-					//------------------------------------
-					oProcess:IncRegua1( "Dicionário de campos (SX3)" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-					FSAtuSX3(::aSX3)
-				EndIf
+					For nX := 1 To Len( aArqUpd )
 
-				If Len(::aSIX) > 0
-					//------------------------------------
-					// Atualiza o dicionário SIX
-					//------------------------------------
-					oProcess:IncRegua1( "Dicionário de índices (SIX)" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-					FSAtuSIX(::aSIX)
-				EndIf
+						oProcess:IncRegua2( "Sincronizando Arquivo " + aArqUpd[nX] + " com o banco de dados..." )
 
-				oProcess:IncRegua1( "Dicionário de dados" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-				oProcess:SetRegua2( "Atualizando campos/índices" )
-
-				// Alteração física dos arquivos
-				__SetX31Mode( .F. )
-
-				If FindFunction(cTCBuild)
-					cTopBuild := &cTCBuild.()
-				EndIf
-
-				For nX := 1 To Len( aArqUpd )
-
-					oProcess:IncRegua2( "Sincronizando Arquivo " + aArqUpd[nX] + " com o banco de dados..." )
-
-					If cTopBuild >= "20090811" .AND. TcInternal( 89 ) == "CLOB_SUPPORTED"
-						If ( ( aArqUpd[nX] >= "NQ " .AND. aArqUpd[nX] <= "NZZ" ) .OR. ( aArqUpd[nX] >= "O0 " .AND. aArqUpd[nX] <= "NZZ" ) ) .AND.;
-							!aArqUpd[nX] $ "NQD,NQF,NQP,NQT"
-							TcInternal( 25, "CLOB" )
+						If cTopBuild >= "20090811" .AND. TcInternal( 89 ) == "CLOB_SUPPORTED"
+							If ( ( aArqUpd[nX] >= "NQ " .AND. aArqUpd[nX] <= "NZZ" ) .OR. ( aArqUpd[nX] >= "O0 " .AND. aArqUpd[nX] <= "NZZ" ) ) .AND.;
+								!aArqUpd[nX] $ "NQD,NQF,NQP,NQT"
+								TcInternal( 25, "CLOB" )
+							EndIf
 						EndIf
-					EndIf
 
-					If Select( aArqUpd[nX] ) > 0
-						dbSelectArea( aArqUpd[nX] )
-						dbCloseArea()
-					EndIf
+						If Select( aArqUpd[nX] ) > 0
+							dbSelectArea( aArqUpd[nX] )
+							dbCloseArea()
+						EndIf
 
-					X31UpdTable( aArqUpd[nX] )
+						X31UpdTable( aArqUpd[nX] )
 
-					If __GetX31Error()
-						Alert( __GetX31Trace() )
-						AutoGrLog( "Ocorreu um erro desconhecido durante a atualização da estrutura da tabela : " + aArqUpd[nX] )
-						MsgStop( "Ocorreu um erro desconhecido durante a atualização da tabela : " + aArqUpd[nX] + ". Verifique a integridade do dicionário e da tabela.", "ATENÇÃO" )
-					EndIf
+						If __GetX31Error()
+							Alert( __GetX31Trace() )
+							AutoGrLog( "Ocorreu um erro desconhecido durante a atualização da estrutura da tabela : " + aArqUpd[nX] )
+							MsgStop( "Ocorreu um erro desconhecido durante a atualização da tabela : " + aArqUpd[nX] + ". Verifique a integridade do dicionário e da tabela.", "ATENÇÃO" )
+						EndIf
 
-					If cTopBuild >= "20090811" .AND. TcInternal( 89 ) == "CLOB_SUPPORTED"
-						TcInternal( 25, "OFF" )
-					EndIf
+						If cTopBuild >= "20090811" .AND. TcInternal( 89 ) == "CLOB_SUPPORTED"
+							TcInternal( 25, "OFF" )
+						EndIf
 
-				Next nX
+					Next nX
 
-				If Len(::aSX1) > 0
-					//------------------------------------
-					// Atualiza os helps
-					//------------------------------------
-					oProcess:IncRegua1( "Grupos de Pergunta (SX1)" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-					FSAtuSX1(::aSX1)
-				EndIf
-
-				If Len(::aSX6) > 0
-					//------------------------------------
-					// Atualiza os helps
-					//------------------------------------
-					oProcess:IncRegua1( "Parâmetros (SX6)" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-					FSAtuSX6(::aSX6)
-				EndIf
-
-				If Len(::aSX7) > 0
-					//------------------------------------
-					// Atualiza os helps
-					//------------------------------------
-					oProcess:IncRegua1( "Gatilhos (SX7)" + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-					FSAtuSX7(::aSX7)
 				EndIf
 
 				AutoGrLog( Replicate( "-", 128 ) )
@@ -471,7 +401,7 @@ Return (lRet)
 
 /*/
 //====================================================================================================================\\
-Static Function FSAtuFile(cAlias, aUpdates)
+Static Function FSAtuFile(cAliSX, aUpdates)
 
 	Local lAtu
 	Local lInclui
@@ -480,41 +410,42 @@ Static Function FSAtuFile(cAlias, aUpdates)
 	Local nPosField
 	Local nL
 	Local nX
+	Local cAlias
 
-	AutoGrLog( "Ínicio da Atualização" + cAlias + CRLF )
+	AutoGrLog( "Ínicio da Atualização " + cAliSX + CRLF )
 
 	oProcess:SetRegua2( Len( aUpdates ) )
 
 	For nL := 1 To Len(aUpdates)
 	
-		oProcess:IncRegua2( "Atualizando arquivo " + cAlias + "..." )
+		oProcess:IncRegua2( "Atualizando arquivo " + cAliSX + "..." )
 
 		lOk := .F.
-		If FsPosicFile(cAlias, aUpdates, @cChave, @lInclui)
+		If FsPosicFile(cAliSX, aUpdates[nL], @cAlias, @cChave, @lInclui)
 
-			RecLock(cAlias,lInclui)
+			RecLock(cAliSX,lInclui)
 			For nX:= 1 To Len(aUpdates[nL])
 
 				If ! aUpdates[nL][nX][1] == "SOMENTE_UPDATE"
 
-					nPosField:= (cAlias)->(FieldPos(aUpdates[nL][nX][1]))
+					nPosField:= (cAliSX)->(FieldPos(aUpdates[nL][nX][1]))
 
 					If nPosField > 0
 						lAtu := .F.
 
-						If lInclui .Or. (cAlias)->(FieldGet(nPosField)) <> aUpdates[nL][nX][2]
+						If lInclui .Or. (cAliSX)->(FieldGet(nPosField)) <> aUpdates[nL][nX][2]
 							
 							lAtu:= .T.
 							lOk:= .T.
-							(cAlias)->(FieldPut(nPosField , aUpdates[nL][nX][2]))
+							(cAliSX)->(FieldPut(nPosField , aUpdates[nL][nX][2]))
 
 						EndIf
 
 						If !lInclui
-							AutoGrLog(cAlias + ' - Chave: ' + cChave + ' Propriedade: ' + aUpdates[nL][nX][1] + Iif(lAtu, '' , ' já' ) + ' Atualizada' + CRLF )
+							AutoGrLog(cAliSX + ' - Chave: ' + cChave + ' Propriedade: ' + aUpdates[nL][nX][1] + Iif(lAtu, '' , ' já' ) + ' Atualizada' + CRLF )
 						EndIf
 					Else
-						AutoGrLog(cAlias + ' - Chave: ' + cChave + ' Propriedade não encontrada: ' + aUpdates[nL][nX][1] + CRLF )
+						AutoGrLog(cAliSX + ' - Chave: ' + cChave + ' Propriedade não encontrada: ' + aUpdates[nL][nX][1] + CRLF )
 					EndIf
 
 				EndIf
@@ -522,19 +453,134 @@ Static Function FSAtuFile(cAlias, aUpdates)
 			Next nX
 
 			If lOk
-				AutoGrLog(cAlias + ' - Chave: ' + cChave + if(lInclui,'incluido','alterado') + ' com sucesso!' + CRLF )
+				AutoGrLog(cAliSX + ' - Chave: ' + cChave + if(lInclui,'incluido','alterado') + ' com sucesso!' + CRLF )
+				If ! Empty(cAlias) .And. aScan(aArqUpd, {|x| x == cAlias }) == 0
+					//aAdd(aArqUpd, cAlias)
+				EndIf
 			EndIf
 
-			(cAlias)->(MsUnlock())
+			(cAliSX)->(MsUnlock())
 
 		EndIf
 	
 	Next nL
 
-	AutoGrLog( CRLF + "Final da Atualização" + cAlias + CRLF + Replicate( "-", 128 ) + CRLF )
+	AutoGrLog( CRLF + "Final da Atualização do arquivo " + cAliSX + CRLF + Replicate( "-", 128 ) + CRLF )
 
 Return NIL
 // FIM da Função FSAtuFile
 //====================================================================================================================\\
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}FsPosicFile
+  ====================================================================================================================
+	@description
+	Função para gravação dos arquivos do dicionário
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+Static Function FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui)
+
+	Local lRet:= .F.
+
+	Do Case
+		Case (cAliSX == "SX3")
+			dbSelectArea("SX3")
+			DbSetOrder(2)
+			cChave:= GetProperty(aUpdate, "X3_CAMPO")
+			If ! Empty(cChave)
+				lInclui:= DbSeek(cChave)
+				If lInclui .And. GetProperty(aUpdate, "SOMENTE_UPDATE")
+					AutoGrLog( "ERRO: Campo " + cChave + " não existe no SX3." )
+				EndIf
+
+				// Determina o Alias do campo
+				If ( At('_',cChave)==3 )
+					cAlias:= "S" + Left(cChave,2)
+				Else
+					cAlias:= Left(cChave,3)
+				EndIf
+
+				// ========================================================
+				// Ajustes para inclusão de campo SX3
+				// ========================================================
+
+				If lInclui .And. Empty( GetProperty(aUpdate, "X3_ARQUIVO") )
+					aAdd(aUpdate, { "X3_ARQUIVO", cAlias })
+				EndIf
+
+				If lInclui .And. Empty( GetProperty(aUpdate, "X3_PROPRI") )
+					aAdd(aUpdate, { "X3_PROPRI", "U" })
+				EndIf
+
+				If lInclui .And. Empty( GetProperty(aUpdate, "X3_VISUAL") )
+					aAdd(aUpdate, { "X3_VISUAL", "A" })
+				EndIf
+
+				If lInclui .And. Empty( GetProperty(aUpdate, "X3_CONTEXT") )
+					aAdd(aUpdate, { "X3_CONTEXT", "R" })
+				EndIf
+
+				If lInclui .And. Empty( GetProperty(aUpdate, "X3_PYME") )
+					aAdd(aUpdate, { "X3_PYME", "S" })
+				EndIf
+				
+				// ========================================================
+				// Ajustes para inclusão de campo SX3 - FIM
+				// ========================================================
+
+			Else
+				AutoGrLog( "ERRO: Propriedade 'Nome do campo' não identificada para atualização do SX3." )
+			EndIf
+	EndCase
+
+Return (lRet)
+// FIM da Função FsPosicFile
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}GetProperty
+  ====================================================================================================================
+	@description
+	Função para gravação dos arquivos do dicionário
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+Static Function GetProperty(aProper, cProper)
+
+	Local xRet
+	Local nPos
+
+	nPos:= aScan(aProper, {|x| x[1] == cProper })
+
+	If nPos > 0
+		//  Se informar a Propriedade SOMENTE_UPDATE não lógica, considera verdadeiro.
+		If cProper == "SOMENTE_UPDATE" .And. ( Len(aProper[nPos]) < 2 .Or. ValType( aProper[nPos][2] ) != "L" )
+			xRet:= .T.
+		Else
+			xRet:= aProper[nPos][2]
+		EndIf
+	EndIf
+
+	// Padrão para a propriedade SOMENTE_UPDATE é .F.
+	If cProper == "SOMENTE_UPDATE" .And. ValType( xRet ) != "L"
+		xRet:= .F.
+	EndIf
+
+Return (xRet)
+// FIM da Função GetProperty
+//====================================================================================================================\\
+
 
 
