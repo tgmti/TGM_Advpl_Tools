@@ -19,6 +19,7 @@ User Function UPDCUSTST
 	Local aCpo1:= {}
 	
 	aAdd(aCpo1, {"X3_CAMPO", "C5_ZTST001"} )
+	aAdd(aCpo1, {"X3_ORDEM", "5"} )
 	aAdd(aCpo1, {"X3_TIPO", "C"} )
 	aAdd(aCpo1, {"X3_TAMANHO", 1} )
 	aAdd(aCpo1, {"X3_TITULO", "Tst compat"} )

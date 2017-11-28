@@ -468,6 +468,10 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 
 			(cAliSX)->(MsUnlock())
 
+
+			// ========================================================
+			// Ajusta Ordem do campo
+			// ========================================================
 			If ! Empty( ::GetProperty(aUpdates[nL], "UPDCUSTOM_X3REORDER") )
 				aRecOrd:= ::GetProperty(aUpdates[nL], "UPDCUSTOM_X3REORDER")
 				For nX:= 1 To Len(aRecOrd)
@@ -475,7 +479,11 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 					SX3->X3_ORDEM:= aRecOrd[nX][2]
 					SX3->(MsUnlock())
 				Next nX
+
 			EndIf
+			// ========================================================
+			// Ajusta Ordem do campo - FIM
+			// ========================================================
 
 		EndIf
 	
@@ -534,26 +542,23 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 						cAlias:= Left(cChave,3)
 					EndIf
 
-					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_ARQUIVO") )
-						aAdd(aUpdate, { "X3_ARQUIVO", cAlias })
-					EndIf
+					If lInclui
+						::DefaultProp(aUpdate, "X3_ARQUIVO", cAlias)
+						::DefaultProp(aUpdate, "X3_PROPRI", "U")
+						::DefaultProp(aUpdate, "X3_VISUAL", "A")
+						::DefaultProp(aUpdate, "X3_CONTEXT", "R")
+						::DefaultProp(aUpdate, "X3_PYME", "S")
+						::DefaultProp(aUpdate, "X3_TITSPA", ::GetProperty(aUpdate, "X3_TITULO"))
+						::DefaultProp(aUpdate, "X3_TITENG", ::GetProperty(aUpdate, "X3_TITULO"))
+						::DefaultProp(aUpdate, "X3_DESCSPA", ::GetProperty(aUpdate, "X3_DESCRIC"))
+						::DefaultProp(aUpdate, "X3_DESCENG", ::GetProperty(aUpdate, "X3_DESCRIC"))
+						::DefaultProp(aUpdate, "X3_USADO", "€€€€€€€€€€€€€€ ")
+						::DefaultProp(aUpdate, "X3_NIVEL", 1)
+						::DefaultProp(aUpdate, "X3_RESERV", "þÀ")
+						::DefaultProp(aUpdate, "X3_ORTOGRA", "N")
+						::DefaultProp(aUpdate, "X3_IDXFLD", "N")
 
-					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_PROPRI") )
-						aAdd(aUpdate, { "X3_PROPRI", "U" })
-					EndIf
-
-					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_VISUAL") )
-						aAdd(aUpdate, { "X3_VISUAL", "A" })
-					EndIf
-
-					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_CONTEXT") )
-						aAdd(aUpdate, { "X3_CONTEXT", "R" })
-					EndIf
-
-					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_PYME") )
-						aAdd(aUpdate, { "X3_PYME", "S" })
-					EndIf
-
+					EndIf	
 					// ========================================================
 					// Ajustes para inclusão de campo SX3 - FIM
 					// ========================================================
@@ -615,6 +620,10 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 						dbGoTo(nRecno)
 					EndIf
 
+					// ========================================================
+					// Ajusta Ordem do campo - FIM
+					// ========================================================					
+
 				EndIf
 			Else
 				AutoGrLog( "ERRO: Propriedade 'Nome do campo' não identificada para atualização do SX3." )
@@ -662,6 +671,30 @@ METHOD GetProperty(aProper, cProper) CLASS UPDCUSTOM
 
 Return (xRet)
 // FIM da Função GetProperty
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}DefaultProp
+  ====================================================================================================================
+	@description
+	Adiciona um valor padrão para uma propriedade
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+METHOD DefaultProp(aUpdate, cProper, xValue) CLASS UPDCUSTOM
+
+	If Empty( ::GetProperty(aUpdate, cProper) )
+		aAdd(aUpdate, { cProper, xValue })
+	EndIf
+
+Return (Nil)
+// FIM da Função DefaultProp
 //====================================================================================================================\\
 
 
