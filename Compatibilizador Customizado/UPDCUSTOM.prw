@@ -27,13 +27,10 @@ CLASS UPDCUSTOM
 	DATA aSX7
 	DATA aSX1
 
+	METHOD New() CONSTRUCTOR
+	METHOD AddProperty()
 	METHOD RunUpdate()
-	METHOD AddSX2()
-	METHOD AddSX3()
-	METHOD AddSIX()
-	METHOD AddSX6()
-	METHOD AddSX7()
-	METHOD AddSX1()
+	METHOD FSTProc()
 
 ENDCLASS
 // FIM da Definição da Classe UPDCUSTOM
@@ -58,6 +55,60 @@ METHOD New() CLASS UPDCUSTOM
 
 Return (SELF)
 // FIM do método New
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}AddProperty
+  ====================================================================================================================
+	@description
+	Adiciona uma propriedade a um arquivo para atualizar
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+	@obs
+	Formato da Propriedade: { "X2_CHAVE", "SC5" }
+
+	Quando for somente atualização, incluir a propriedade: { "SOMENTE_UPDATE", .T. }
+
+	Formato dos arquivos:
+	SX2: "X2_CHAVE"  , "X2_PATH"   , "X2_ARQUIVO", "X2_NOME"   , "X2_NOMESPA", "X2_NOMEENG", "X2_MODO"   , ;
+		"X2_TTS"    , "X2_ROTINA" , "X2_PYME"   , "X2_UNICO"  , "X2_DISPLAY", "X2_SYSOBJ" , "X2_USROBJ" , ;
+		"X2_POSLGT" , "X2_MODOEMP", "X2_MODOUN" , "X2_MODULO" }
+
+	SX3: 
+
+/*/
+//====================================================================================================================\\
+METHOD AddProperty(cSXFile, aPropAdic) CLASS UPDCUSTOM
+
+	Local nX
+	Local aSXFile
+
+	Do Case
+		Case (cSXFile == "SX1")
+			aSXFile:= ::aSX1 
+		Case (cSXFile == "SX2")
+			aSXFile:= ::aSX2
+		Case (cSXFile == "SX3")
+			aSXFile:= ::aSX3 
+		Case (cSXFile == "SX6")
+			aSXFile:= ::aSX6
+		Case (cSXFile == "SX7")
+			aSXFile:= ::aSX7
+		Case (cSXFile == "SIX")
+			aSXFile:= ::aSIX
+	EndCase
+
+	For nX:= 1 To Len(aPropAdic)
+		aAdd( aTail(aSXFile, {aPropAdic[nX,1], aPropAdic[nX,2]} )
+	Next nX
+
+Return (Nil)
+// FIM do método AddProperty
 //====================================================================================================================\\
 
 
@@ -407,128 +458,81 @@ Return (lRet)
 
 
 //====================================================================================================================\\
-/*/{Protheus.doc}AddTable
+/*/{Protheus.doc}FSAtuFile
   ====================================================================================================================
 	@description
-	Adiciona uma Tabela (SX2) para atualizar
+	Função para gravação dos arquivos do dicionário
 
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
-	@return		Objeto, Instância em da classe UPDCUSTOM
 
 /*/
 //====================================================================================================================\\
-METHOD AddTable(cAlias, cNome, cModo, cModoEmp, cModoUni, aPropAdic) CLASS UPDCUSTOM
+Static Function FSAtuFile(cAlias, aUpdates)
 
+	Local lAtu
+	Local lInclui
+	Local lOk
+	Local cChave
+	Local nPosField
+	Local nL
 	Local nX
 
-	Default cModo:= "C"
-	Default cModoEmp:= " "
-	Default cModoUni:= " "
-	Default aPropAdic:= {}
+	AutoGrLog( "Ínicio da Atualização" + cAlias + CRLF )
 
-	/* aEstrut := { "X2_CHAVE"  , "X2_PATH"   , "X2_ARQUIVO", "X2_NOME"   , "X2_NOMESPA", "X2_NOMEENG", "X2_MODO"   , ;
-				"X2_TTS"    , "X2_ROTINA" , "X2_PYME"   , "X2_UNICO"  , "X2_DISPLAY", "X2_SYSOBJ" , "X2_USROBJ" , ;
-				"X2_POSLGT" , "X2_MODOEMP", "X2_MODOUN" , "X2_MODULO" } */
+	oProcess:SetRegua2( Len( aUpdates ) )
 
-	aAdd( ::aSX2, {} )
+	For nL := 1 To Len(aUpdates)
+	
+		oProcess:IncRegua2( "Atualizando arquivo " + cAlias + "..." )
 
-	aAdd( aTail(::aSX2, {"X2_CHAVE", cAlias} )
-	aAdd( aTail(::aSX2, {"X2_NOME", cNome} )
-	aAdd( aTail(::aSX2, {"X2_MODO", cModo} )
-	aAdd( aTail(::aSX2, {"X2_MODOEMP", cModoEmp} )
-	aAdd( aTail(::aSX2, {"X2_MODOUN", cModoUni} )
+		lOk := .F.
+		If FsPosicFile(cAlias, aUpdates, @cChave, @lInclui)
 
-	For nX:= 1 To Len(aPropAdic)
-		aAdd( aTail(::aSX2, {aPropAdic[nX,1], aPropAdic[nX,2]} )
-	Next nX
+			RecLock(cAlias,lInclui)
+			For nX:= 1 To Len(aUpdates[nL])
 
-Return (Nil)
-// FIM do método AddTable
+				If ! aUpdates[nL][nX][1] == "SOMENTE_UPDATE"
+
+					nPosField:= (cAlias)->(FieldPos(aUpdates[nL][nX][1]))
+
+					If nPosField > 0
+						lAtu := .F.
+
+						If lInclui .Or. (cAlias)->(FieldGet(nPosField)) <> aUpdates[nL][nX][2]
+							
+							lAtu:= .T.
+							lOk:= .T.
+							(cAlias)->(FieldPut(nPosField , aUpdates[nL][nX][2]))
+
+						EndIf
+
+						If !lInclui
+							AutoGrLog(cAlias + ' - Chave: ' + cChave + ' Propriedade: ' + aUpdates[nL][nX][1] + Iif(lAtu, '' , ' já' ) + ' Atualizada' + CRLF )
+						EndIf
+					Else
+						AutoGrLog(cAlias + ' - Chave: ' + cChave + ' Propriedade não encontrada: ' + aUpdates[nL][nX][1] + CRLF )
+					EndIf
+
+				EndIf
+
+			Next nX
+
+			If lOk
+				AutoGrLog(cAlias + ' - Chave: ' + cChave + if(lInclui,'incluido','alterado') + ' com sucesso!' + CRLF )
+			EndIf
+
+			(cAlias)->(MsUnlock())
+
+		EndIf
+	
+	Next nL
+
+	AutoGrLog( CRLF + "Final da Atualização" + cAlias + CRLF + Replicate( "-", 128 ) + CRLF )
+
+Return NIL
+// FIM da Função FSAtuFile
 //====================================================================================================================\\
 
 
-
-//====================================================================================================================\\
-/*/{Protheus.doc}AddIndex
-  ====================================================================================================================
-	@description
-	Adiciona um índice (SIX) para atualizar
-
-	@author		TSC681 Thiago Mota
-	@version	1.0
-	@since		01/12/2016
-	@return		Objeto, Instância em da classe UPDCUSTOM
-
-/*/
-//====================================================================================================================\\
-METHOD AddIndex(cAlias, cOrdem, cChave, cDescricao cNickName, aPropAdic) CLASS UPDCUSTOM
-
-	Local nX
-
-	Default cOrdem:= " "
-	Default cNickName:= " "
-	Default aPropAdic:= {}
-
-	/* aEstrut := { "INDICE" , "ORDEM" , "CHAVE", "DESCRICAO", "DESCSPA"  , ;
-				"DESCENG", "PROPRI", "F3"   , "NICKNAME" , "SHOWPESQ" } */
-
-	aAdd( ::aSIX, {} )
-
-	aAdd( aTail(::aSIX, {"INDICE", cAlias} )
-	aAdd( aTail(::aSIX, {"ORDEM", cOrdem} )
-	aAdd( aTail(::aSIX, {"CHAVE", cChave} )
-	aAdd( aTail(::aSIX, {"DESCRICAO", cDescricao} )
-	aAdd( aTail(::aSIX, {"NICKNAME", cNickName} )
-
-	For nX:= 1 To Len(aPropAdic)
-		aAdd( aTail(::aSIX, {aPropAdic[nX,1], aPropAdic[nX,2]} )
-	Next nX
-
-Return (Nil)
-// FIM do método AddIndex
-//====================================================================================================================\\
-
-
-
-//====================================================================================================================\\
-/*/{Protheus.doc}AddField
-  ====================================================================================================================
-	@description
-	Adiciona um campo (SX3) para atualizar
-
-	@author		TSC681 Thiago Mota
-	@version	1.0
-	@since		01/12/2016
-	@return		Objeto, Instância em da classe UPDCUSTOM
-
-/*/
-//====================================================================================================================\\
-METHOD AddField(cAlias, cCampo, cOrdem, cTipo, cTitulo, cDescricao, nTamanho, nDecimal, aPropAdic) CLASS UPDCUSTOM
-
-	Local nX
-
-	Default cOrdem:= "  "
-	Default cTipo:= "C"
-	Default nDecimal:= 0
-	Default aPropAdic:= {}
-
-	aAdd( ::aSX3, {} )
-
-	aAdd( aTail(::aSX3, {"X3_ARQUIVO", cAlias} )
-	aAdd( aTail(::aSX3, {"X3_CAMPO", cCampo} )
-	aAdd( aTail(::aSX3, {"X3_ORDEM", cOrdem} )
-	aAdd( aTail(::aSX3, {"X3_TIPO", cTipo} )
-	aAdd( aTail(::aSX3, {"X3_TITULO", cTitulo} )
-	aAdd( aTail(::aSX3, {"X3_DESCRIC", cDescricao} )
-	aAdd( aTail(::aSX3, {"X3_TAMANHO", nTamanho} )
-	aAdd( aTail(::aSX3, {"X3_DECIMAL", nDecimal} )
-
-	For nX:= 1 To Len(aPropAdic)
-		aAdd( aTail(::aSX3, {aPropAdic[nX,1], aPropAdic[nX,2]} )
-	Next nX
-
-Return (Nil)
-// FIM do método AddField
-//====================================================================================================================\\
