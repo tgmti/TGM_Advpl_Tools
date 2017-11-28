@@ -142,22 +142,26 @@ METHOD RunUpdate(lAuto) CLASS UPDCUSTOM
 
 	Set Dele On
 
-	// Mensagens de Tela Inicial
-	aAdd( aMsg, "Esta rotina tem como função fazer  a atualização  dos dicionários do Sistema ( SX?/SIX )" )
-	aAdd( aMsg, "Este processo deve ser executado em modo EXCLUSIVO." )
+	If lAuto
+		lOk:= .T.
+	Else
+		// Mensagens de Tela Inicial
+		aAdd( aMsg, "Esta rotina tem como função fazer  a atualização  dos dicionários do Sistema ( SX?/SIX )" )
+		aAdd( aMsg, "Este processo deve ser executado em modo EXCLUSIVO." )
 
-	// Botoes Tela Inicial
-	aAdd(  aButton, {  1, .T., { || lOk := .T., FechaBatch() } } )
-	aAdd(  aButton, {  2, .T., { || lOk := .F., FechaBatch() } } )
+		// Botoes Tela Inicial
+		aAdd(  aButton, {  1, .T., { || lOk := .T., FechaBatch() } } )
+		aAdd(  aButton, {  2, .T., { || lOk := .F., FechaBatch() } } )
 
-	FormBatch( ::cTitulo,  aMsg,  aButton )
+		FormBatch( ::cTitulo,  aMsg,  aButton )
+	EndIf
 
 	If lOk
 		aMarcadas := EscEmpresa(lAuto)
 
 		If !Empty( aMarcadas )
 
-			If MsgNoYes( "Confirma a atualização dos dicionários ?", ::cTitulo )
+			If lAuto .Or. MsgNoYes( "Confirma a atualização dos dicionários ?", ::cTitulo )
 				oProcess := MsNewProcess():New( { | lEnd | lOk := ::FSTProc( @lEnd, aMarcadas, lAuto ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
 				oProcess:Activate()
 
@@ -190,12 +194,11 @@ Return
   ====================================================================================================================
 	@description
 	Função de processamento da gravação dos arquivos
-
 	@author		TSC681 Thiago Mota
 	@version	1.0
 	@since		01/12/2016
 	@return		Objeto, Instância em da classe UPDCUSTOM
-
+	
 /*/
 //====================================================================================================================\\
 METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM

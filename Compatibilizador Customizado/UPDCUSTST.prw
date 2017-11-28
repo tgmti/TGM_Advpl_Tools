@@ -26,8 +26,7 @@ User Function UPDCUSTST
 
 	// Teste de adição de campo
 	oCompat:AddProperty("SX3", aCpo1)
-	oCompat:RunUpdate()
-
+	oCompat:RunUpdate(.T.)
 
 	RpcSetEnv( "99", "01" )
 	DbSelectArea("SX3")
