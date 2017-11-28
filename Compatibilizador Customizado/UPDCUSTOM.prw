@@ -27,6 +27,9 @@ CLASS UPDCUSTOM
 	METHOD AddProperty()
 	METHOD RunUpdate()
 	METHOD FSTProc()
+	METHOD FSAtuFile()
+	METHOD FsPosicFile()
+	METHOD GetProperty()
 
 ENDCLASS
 // FIM da Definição da Classe UPDCUSTOM
@@ -132,6 +135,7 @@ METHOD RunUpdate(lAuto) CLASS UPDCUSTOM
 	Private oMainWnd  := NIL
 	Private oProcess  := NIL
 	Private cDirComp  := NIL
+	Private aSXFile   := ::aSXFile
 
 	#IFDEF TOP
 	    TCInternal( 5, "*OFF" ) // Desliga Refresh no Lock do Top
@@ -166,9 +170,9 @@ METHOD RunUpdate(lAuto) CLASS UPDCUSTOM
 				oProcess:Activate()
 
 				If lOk
-					Final( "Atualização Concluída." )
+					MsgStop( "Atualização Concluída." )
 				Else
-					Final( "Atualização não Realizada." )
+					MsgStop( "Atualização não Realizada." )
 				EndIf
 
 			Else
@@ -297,13 +301,12 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 				AutoGrLog( Replicate( "-", 128 ) )
 				AutoGrLog( "Empresa : " + SM0->M0_CODIGO + "/" + SM0->M0_NOME + CRLF )
 
-				oProcess:SetRegua1( Len(::aSXFile) )
+				oProcess:SetRegua1( Len(aSXFile) )
 
-				For nL:= 1 To Len(::aSXFile)
+				For nL:= 1 To Len(aSXFile)
 
-					oProcess:IncRegua1( "Atualizando arquivo " + ::aSXFile[nL][1] + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
-
-					FSAtuFile(::aSXFile[nL][1], ::aSXFile[nL][2])
+					oProcess:IncRegua1( "Atualizando arquivo " + aSXFile[nL][1] + " - " + SM0->M0_CODIGO + " " + SM0->M0_NOME + " ..." )
+					::FSAtuFile(aSXFile[nL][1], aSXFile[nL][2])
 
 				Next nL
 
@@ -404,7 +407,7 @@ Return (lRet)
 
 /*/
 //====================================================================================================================\\
-Static Function FSAtuFile(cAliSX, aUpdates)
+METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 
 	Local lAtu
 	Local lInclui
@@ -415,7 +418,7 @@ Static Function FSAtuFile(cAliSX, aUpdates)
 	Local nX
 	Local cAlias
 
-	AutoGrLog( "Ínicio da Atualização " + cAliSX + CRLF )
+	AutoGrLog( "Ínicio da Atualização do arquivo " + cAliSX + CRLF )
 
 	oProcess:SetRegua2( Len( aUpdates ) )
 
@@ -424,7 +427,7 @@ Static Function FSAtuFile(cAliSX, aUpdates)
 		oProcess:IncRegua2( "Atualizando arquivo " + cAliSX + "..." )
 
 		lOk := .F.
-		If FsPosicFile(cAliSX, aUpdates[nL], @cAlias, @cChave, @lInclui)
+		If ::FsPosicFile(cAliSX, aUpdates[nL], @cAlias, @cChave, @lInclui)
 
 			RecLock(cAliSX,lInclui)
 			For nX:= 1 To Len(aUpdates[nL])
@@ -445,10 +448,10 @@ Static Function FSAtuFile(cAliSX, aUpdates)
 						EndIf
 
 						If !lInclui
-							AutoGrLog(cAliSX + ' - Chave: ' + cChave + ' Propriedade: ' + aUpdates[nL][nX][1] + Iif(lAtu, '' , ' já' ) + ' Atualizada' + CRLF )
+							AutoGrLog(' - Chave: ' + cChave + ' Propriedade: ' + aUpdates[nL][nX][1] + Iif(lAtu, '' , ' já' ) + ' Atualizada' + CRLF )
 						EndIf
 					Else
-						AutoGrLog(cAliSX + ' - Chave: ' + cChave + ' Propriedade não encontrada: ' + aUpdates[nL][nX][1] + CRLF )
+						AutoGrLog(' - Chave: ' + cChave + ' Propriedade não encontrada: ' + aUpdates[nL][nX][1] + CRLF )
 					EndIf
 
 				EndIf
@@ -456,7 +459,7 @@ Static Function FSAtuFile(cAliSX, aUpdates)
 			Next nX
 
 			If lOk
-				AutoGrLog(cAliSX + ' - Chave: ' + cChave + if(lInclui,'incluido','alterado') + ' com sucesso!' + CRLF )
+				AutoGrLog(' - Chave: ' + cChave + if(lInclui,' incluido',' alterado') + ' com sucesso!' + CRLF )
 				If ! Empty(cAlias) .And. aScan(aArqUpd, {|x| x == cAlias }) == 0
 					//aAdd(aArqUpd, cAlias) //TODO: Habilitar a atualização do banco
 				EndIf
@@ -487,7 +490,7 @@ Return NIL
 
 /*/
 //====================================================================================================================\\
-Static Function FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui)
+METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 	Local lRet:= .F.
 
@@ -495,48 +498,52 @@ Static Function FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui)
 		Case (cAliSX == "SX3")
 			dbSelectArea("SX3")
 			DbSetOrder(2)
-			cChave:= GetProperty(aUpdate, "X3_CAMPO")
+			cChave:= ::GetProperty(aUpdate, "X3_CAMPO")
 			If ! Empty(cChave)
-				lInclui:= DbSeek(cChave)
-				If lInclui .And. GetProperty(aUpdate, "SOMENTE_UPDATE")
+				lInclui:= ! DbSeek(cChave)
+				If lInclui .And. ::GetProperty(aUpdate, "SOMENTE_UPDATE")
 					AutoGrLog( "ERRO: Campo " + cChave + " não existe no SX3." )
-				EndIf
-
-				// Determina o Alias do campo
-				If ( At('_',cChave)==3 )
-					cAlias:= "S" + Left(cChave,2)
 				Else
-					cAlias:= Left(cChave,3)
+					lRet:= .T.
 				EndIf
 
-				// ========================================================
-				// Ajustes para inclusão de campo SX3
-				// ========================================================
+				If lRet
+					// ========================================================
+					// Ajustes para inclusão de campo SX3
+					// ========================================================
 
-				If lInclui .And. Empty( GetProperty(aUpdate, "X3_ARQUIVO") )
-					aAdd(aUpdate, { "X3_ARQUIVO", cAlias })
+					// Determina o Alias do campo
+					If ( At('_',cChave)==3 )
+						cAlias:= "S" + Left(cChave,2)
+					Else
+						cAlias:= Left(cChave,3)
+					EndIf
+
+					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_ARQUIVO") )
+						aAdd(aUpdate, { "X3_ARQUIVO", cAlias })
+					EndIf
+
+					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_PROPRI") )
+						aAdd(aUpdate, { "X3_PROPRI", "U" })
+					EndIf
+
+					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_VISUAL") )
+						aAdd(aUpdate, { "X3_VISUAL", "A" })
+					EndIf
+
+					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_CONTEXT") )
+						aAdd(aUpdate, { "X3_CONTEXT", "R" })
+					EndIf
+
+					If lInclui .And. Empty( ::GetProperty(aUpdate, "X3_PYME") )
+						aAdd(aUpdate, { "X3_PYME", "S" })
+					EndIf
+
+					// ========================================================
+					// Ajustes para inclusão de campo SX3 - FIM
+					// ========================================================
+
 				EndIf
-
-				If lInclui .And. Empty( GetProperty(aUpdate, "X3_PROPRI") )
-					aAdd(aUpdate, { "X3_PROPRI", "U" })
-				EndIf
-
-				If lInclui .And. Empty( GetProperty(aUpdate, "X3_VISUAL") )
-					aAdd(aUpdate, { "X3_VISUAL", "A" })
-				EndIf
-
-				If lInclui .And. Empty( GetProperty(aUpdate, "X3_CONTEXT") )
-					aAdd(aUpdate, { "X3_CONTEXT", "R" })
-				EndIf
-
-				If lInclui .And. Empty( GetProperty(aUpdate, "X3_PYME") )
-					aAdd(aUpdate, { "X3_PYME", "S" })
-				EndIf
-
-				// ========================================================
-				// Ajustes para inclusão de campo SX3 - FIM
-				// ========================================================
-
 			Else
 				AutoGrLog( "ERRO: Propriedade 'Nome do campo' não identificada para atualização do SX3." )
 			EndIf
@@ -560,7 +567,7 @@ Return (lRet)
 
 /*/
 //====================================================================================================================\\
-Static Function GetProperty(aProper, cProper)
+METHOD GetProperty(aProper, cProper) CLASS UPDCUSTOM
 
 	Local xRet
 	Local nPos

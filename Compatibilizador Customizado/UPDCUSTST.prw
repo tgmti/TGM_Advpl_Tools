@@ -32,17 +32,17 @@ User Function UPDCUSTST
 	DbSelectArea("SX3")
 	DbSetOrder(2)
 	If DbSeek("C5_ZTST001")
-		Alert("Campo C5_ZTST001 criado no SX3.")
+		MsgInfo("Campo C5_ZTST001 criado no SX3.")
 
 		DbSelectArea("SC5")
 		If FieldPos("C5_ZTST001") > 0
-			Alert("Campo C5_ZTST001 criado no banco de dados.")
+			Final("Campo C5_ZTST001 criado no banco de dados.")
 		Else
-			Alert("Campo C5_ZTST001 NÃO criado no banco de dados!!!")
+			Final("Campo C5_ZTST001 NÃO criado no banco de dados!!!")
 		EndIf
 
 	Else
-		Alert("Campo C5_ZTST001 NÃO criado no SX3!!!!")
+		Final("Campo C5_ZTST001 NÃO criado no SX3!!!!")
 	EndIf
 
 
