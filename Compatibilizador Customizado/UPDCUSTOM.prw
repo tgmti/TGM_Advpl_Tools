@@ -30,6 +30,7 @@ CLASS UPDCUSTOM
 	METHOD FSAtuFile()
 	METHOD FsPosicFile()
 	METHOD GetProperty()
+	METHOD DefaultProp()
 
 ENDCLASS
 // FIM da Definição da Classe UPDCUSTOM
@@ -596,8 +597,10 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 						ElseIf nOrdem == nOrdX3Atu
 							// Reordena os próximos SX3
 							While !Eof() .And. X3_ARQUIVO == cAlias
-								nOrdX3Atu++
-								aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
+								If X3_CAMPO != cChave
+									nOrdX3Atu++
+									aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
+								EndIf
 								dbSkip()
 							EndDo
 						EndIf
