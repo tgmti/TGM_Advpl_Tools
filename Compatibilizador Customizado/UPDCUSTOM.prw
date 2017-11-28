@@ -104,9 +104,9 @@ METHOD AddProperty(cSXFile, aPropAdic) CLASS UPDCUSTOM
 	EndCase
 
 	aAdd( aSXFile, {} )
-	
+
 	For nX:= 1 To Len(aPropAdic)
-		aAdd( aTail(aSXFile, {aPropAdic[nX,1], aPropAdic[nX,2]} )
+		aAdd( aTail(aSXFile), {aPropAdic[nX,1], aPropAdic[nX,2]} )
 	Next nX
 
 Return (Nil)

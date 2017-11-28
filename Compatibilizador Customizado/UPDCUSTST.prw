@@ -15,7 +15,7 @@
 //====================================================================================================================\\
 User Function UPDCUSTST
 
-	Local oCompat:= UPDCUSTOM()New()
+	Local oCompat:= UPDCUSTOM():New()
 	Local aCpo1:= {}
 	
 	
