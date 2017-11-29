@@ -30,7 +30,10 @@ CLASS UPDCUSTOM
 	METHOD FSAtuFile()
 	METHOD FsPosicFile()
 	METHOD GetProperty()
+	METHOD SetProperty()
 	METHOD DefaultProp()
+	METHOD AjustaSX3()
+	METHOD AjustaSX6()
 
 ENDCLASS
 // FIM da Definição da Classe UPDCUSTOM
@@ -513,13 +516,12 @@ Return NIL
 METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 	Local lRet:= .F.
-	Local nRecno
-	Local aRecOrd
-	Local cOrdem
-	Local nOrdem
-	Local nOrdX3Atu
 
 	Do Case
+
+		// ========================================================
+		// Tratamento do SX3
+		// ========================================================	
 		Case (cAliSX == "SX3")
 			dbSelectArea("SX3")
 			DbSetOrder(2)
@@ -533,9 +535,6 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 				EndIf
 
 				If lRet
-					// ========================================================
-					// Ajustes para inclusão de campo SX3
-					// ========================================================
 
 					// Determina o Alias do campo
 					If ( At('_',cChave)==3 )
@@ -544,100 +543,50 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 						cAlias:= Left(cChave,3)
 					EndIf
 
-					If lInclui
-						::DefaultProp(aUpdate, "X3_ARQUIVO", cAlias)
-						::DefaultProp(aUpdate, "X3_PROPRI", "U")
-						::DefaultProp(aUpdate, "X3_VISUAL", "A")
-						::DefaultProp(aUpdate, "X3_CONTEXT", "R")
-						::DefaultProp(aUpdate, "X3_PYME", "S")
-						::DefaultProp(aUpdate, "X3_TITSPA", ::GetProperty(aUpdate, "X3_TITULO"))
-						::DefaultProp(aUpdate, "X3_TITENG", ::GetProperty(aUpdate, "X3_TITULO"))
-						::DefaultProp(aUpdate, "X3_DESCSPA", ::GetProperty(aUpdate, "X3_DESCRIC"))
-						::DefaultProp(aUpdate, "X3_DESCENG", ::GetProperty(aUpdate, "X3_DESCRIC"))
-						::DefaultProp(aUpdate, "X3_USADO", "€€€€€€€€€€€€€€ ")
-						::DefaultProp(aUpdate, "X3_NIVEL", 1)
-						::DefaultProp(aUpdate, "X3_RESERV", "þÀ")
-						::DefaultProp(aUpdate, "X3_ORTOGRA", "N")
-						::DefaultProp(aUpdate, "X3_IDXFLD", "N")
-
-					EndIf	
-					// ========================================================
-					// Ajustes para inclusão de campo SX3 - FIM
-					// ========================================================
-
-					// ========================================================
-					// Ajusta Ordem do campo
-					// ========================================================
-					nRecno:= If(lInclui, 0, Recno())
-					cOrdem:= ::GetProperty(aUpdate, "X3_ORDEM")
-					aRecOrd:= {}
-
-					If Empty(cOrdem)
-						cOrdem:= "ZZ"
-					EndIf
-
-					If Len(cOrdem) == 2
-						nOrdem:= Val(RetAsc(cOrdem,3,.F.))
-					Else
-						nOrdem:= Val(cOrdem)
-					EndIf
-
-					cOrdem:= RetAsc(nOrdem,2,.T.)
-
-					DbSetOrder(1)
-					DbSeek(cAlias + cOrdem, .T.) 
-					
-					If cAlias != X3_ARQUIVO
-						dbSkip(-1)
-					EndIf
-
-					If cAlias == X3_ARQUIVO
-						nOrdX3Atu:= Val(RetAsc(SX3->X3_ORDEM,3,.F.))
-						If ( nOrdem > nOrdX3Atu )
-							nOrdem:= nOrdX3Atu + 1
-						ElseIf nOrdem == nOrdX3Atu
-							// Reordena os próximos SX3
-							SX3->(dbGoTop())
-							DbSeek(cAlias)
-							nOrdX3Atu:= 0
-							While !Eof() .And. X3_ARQUIVO == cAlias
-								If AllTrim(X3_CAMPO) != AllTrim(cChave)
-									nOrdX3Atu++
-									If nOrdX3Atu == nOrdem
-										nOrdX3Atu++
-									EndIf
-									aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
-								EndIf
-								dbSkip()
-							EndDo
-						EndIf
-
-						If nOrdem <= 0
-							nOrdem:= 1
-						EndIf
-					Else
-						nOrdem:= 1
-					EndIf
-
-					aAdd(aUpdate, { "X3_ORDEM", RetAsc(nOrdem,2,.T.) })
-
-					If Len(aRecOrd) > 0
-						aAdd(aUpdate, { "UPDCUSTOM_X3REORDER", aRecOrd })
-					EndIf
-
-					DbSetOrder(2)
-					If nRecno != 0
-						dbGoTo(nRecno)
-					EndIf
-
-					// ========================================================
-					// Ajusta Ordem do campo - FIM
-					// ========================================================					
+					::AjustaSX3(aUpdate, cAlias, cChave, lInclui)
 
 				EndIf
 			Else
 				AutoGrLog( "ERRO: Propriedade 'Nome do campo' não identificada para atualização do SX3." )
 			EndIf
+		// ========================================================
+		// Tratamento do SX3 - FIM
+		// ========================================================	
+
+
+		// ========================================================
+		// Tratamento do SX6
+		// ========================================================	
+		Case (cAliSX == "SX6")
+			dbSelectArea("SX6")
+			DbSetOrder(1)
+			dbGoTop()
+
+			::DefaultProp(aUpdate, "X6_FIL", Space(Len(SX6->X6_FIL)))
+
+			cChave:= ::GetProperty(aUpdate, "X6_VAR")
+
+			If ! Empty(cChave)
+				
+				cChave:= ::GetProperty(aUpdate, "X6_FIL") + cChave
+
+				lInclui:= ! DbSeek(cChave)
+				If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
+					AutoGrLog( "ERRO: Parâmetro " + cChave + " não existe no SX6." )
+				Else
+					lRet:= .T.
+				EndIf
+
+				If lRet
+					::AjustaSX6(aUpdate, cAlias, cChave, lInclui)
+				EndIf
+			Else
+				AutoGrLog( "ERRO: Propriedade 'Nome do Parâmetro (X6_VAR)' não identificada para atualização do SX6." )
+			EndIf
+		// ========================================================
+		// Tratamento do SX6 - FIM
+		// ========================================================	
+
 	EndCase
 
 Return (lRet)
@@ -686,6 +635,37 @@ Return (xRet)
 
 
 //====================================================================================================================\\
+/*/{Protheus.doc}SetProperty
+  ====================================================================================================================
+	@description
+	Altera uma propriedade
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+METHOD SetProperty(aProper, cProper, xValue) CLASS UPDCUSTOM
+
+	Local xRet
+	Local nPos
+
+	nPos:= aScan(aProper, {|x| x[1] == cProper })
+
+	If nPos <= 0
+		aAdd(aProper, {cProper, xValue})
+	Else
+		aProper[nPos][2]:= xValue
+	EndIf
+
+Return (Nil)
+// FIM da Função SetProperty
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
 /*/{Protheus.doc}DefaultProp
   ====================================================================================================================
 	@description
@@ -705,6 +685,190 @@ METHOD DefaultProp(aUpdate, cProper, xValue) CLASS UPDCUSTOM
 
 Return (Nil)
 // FIM da Função DefaultProp
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}AjustaSX6
+  ====================================================================================================================
+	@description
+	Ajustes para inclusão de campo no SX3
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+METHOD AjustaSX6(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
+
+	Local cX6Descri
+	Local nX6TamDes
+
+	If lInclui
+
+		::DefaultProp(aUpdate, "X6_TIPO", "C")
+		::DefaultProp(aUpdate, "X6_PROPRI", "U")
+		::DefaultProp(aUpdate, "X6_PYME", "S")
+		::DefaultProp(aUpdate, "X6_DESCRIC", "")
+		::DefaultProp(aUpdate, "X6_DESC1", "")
+		::DefaultProp(aUpdate, "X6_DESC2", "")
+
+		cX6Descri:= ::GetProperty(aUpdate, "X6_DESCRIC")
+		cX6Descri+= ::GetProperty(aUpdate, "X6_DESC1")
+		cX6Descri+= ::GetProperty(aUpdate, "X6_DESC2")
+		nX6TamDes:= Len(SX6->X6_DESCRIC)
+
+		If Len(cX6Descri) > nX6TamDes
+			::SetProperty(aUpdate, "X6_DESCRIC", Substr(cX6Descri, 1, nX6TamDes))
+
+			cX6Descri:= Substr(cX6Descri, nX6TamDes+1)
+			nX6TamDes:= Len(SX6->X6_DESC1)
+			::SetProperty(aUpdate, "X6_DESC1", Substr(cX6Descri, 1, nX6TamDes))
+
+			If Len(cX6Descri) > nX6TamDes
+				cX6Descri:= Substr(cX6Descri, nX6TamDes+1)
+				nX6TamDes:= Len(SX6->X6_DESC2)
+				::SetProperty(aUpdate, "X6_DESC2", Substr(cX6Descri, 1, nX6TamDes))
+			EndIf
+
+		EndIf
+
+		::DefaultProp(aUpdate, "X6_DSCSPA", ::GetProperty(aUpdate, "X6_DESCRIC"))
+		::DefaultProp(aUpdate, "X6_DSCENG", ::GetProperty(aUpdate, "X6_DESCRIC"))
+		::DefaultProp(aUpdate, "X6_DSCSPA1", ::GetProperty(aUpdate, "X6_DESC1"))
+		::DefaultProp(aUpdate, "X6_DSCENG1", ::GetProperty(aUpdate, "X6_DESC1"))
+		::DefaultProp(aUpdate, "X6_DSCSPA2", ::GetProperty(aUpdate, "X6_DESC2"))
+		::DefaultProp(aUpdate, "X6_DSCENG2", ::GetProperty(aUpdate, "X6_DESC2"))
+
+		If ! Empty( ::GetProperty(aUpdate, "X6_CONTEUD") )
+			::DefaultProp(aUpdate, "X6_CONTSPA", ::GetProperty(aUpdate, "X6_CONTEUD"))
+			::DefaultProp(aUpdate, "X6_CONTENG", ::GetProperty(aUpdate, "X6_CONTEUD"))
+		EndIf
+	EndIf
+
+Return (Nil)
+// FIM da Função AjustaSX6
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}AjustaSX3
+  ====================================================================================================================
+	@description
+	Ajustes para inclusão de campo no SX3
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
+
+	Local nRecno
+	Local aRecOrd
+	Local cOrdem
+	Local nOrdem
+	Local nOrdX3Atu
+
+	// ========================================================
+	// Ajustes para inclusão de campo SX3
+	// ========================================================
+	If lInclui
+		::DefaultProp(aUpdate, "X3_ARQUIVO", cAlias)
+		::DefaultProp(aUpdate, "X3_PROPRI", "U")
+		::DefaultProp(aUpdate, "X3_VISUAL", "A")
+		::DefaultProp(aUpdate, "X3_CONTEXT", "R")
+		::DefaultProp(aUpdate, "X3_PYME", "S")
+		::DefaultProp(aUpdate, "X3_TITSPA", ::GetProperty(aUpdate, "X3_TITULO"))
+		::DefaultProp(aUpdate, "X3_TITENG", ::GetProperty(aUpdate, "X3_TITULO"))
+		::DefaultProp(aUpdate, "X3_DESCSPA", ::GetProperty(aUpdate, "X3_DESCRIC"))
+		::DefaultProp(aUpdate, "X3_DESCENG", ::GetProperty(aUpdate, "X3_DESCRIC"))
+		::DefaultProp(aUpdate, "X3_USADO", "€€€€€€€€€€€€€€ ")
+		::DefaultProp(aUpdate, "X3_NIVEL", 1)
+		::DefaultProp(aUpdate, "X3_RESERV", "þÀ")
+		::DefaultProp(aUpdate, "X3_ORTOGRA", "N")
+		::DefaultProp(aUpdate, "X3_IDXFLD", "N")
+
+	EndIf	
+	// ========================================================
+	// Ajustes para inclusão de campo SX3 - FIM
+	// ========================================================
+
+	// ========================================================
+	// Ajusta Ordem do campo
+	// ========================================================
+	nRecno:= If(lInclui, 0, Recno())
+	cOrdem:= ::GetProperty(aUpdate, "X3_ORDEM")
+	aRecOrd:= {}
+
+	If Empty(cOrdem)
+		cOrdem:= "ZZ"
+	EndIf
+
+	If Len(cOrdem) == 2
+		nOrdem:= Val(RetAsc(cOrdem,3,.F.))
+	Else
+		nOrdem:= Val(cOrdem)
+	EndIf
+
+	cOrdem:= RetAsc(nOrdem,2,.T.)
+
+	DbSetOrder(1)
+	DbSeek(cAlias + cOrdem, .T.) 
+	
+	If cAlias != X3_ARQUIVO
+		dbSkip(-1)
+	EndIf
+
+	If cAlias == X3_ARQUIVO
+		nOrdX3Atu:= Val(RetAsc(SX3->X3_ORDEM,3,.F.))
+		If ( nOrdem > nOrdX3Atu )
+			nOrdem:= nOrdX3Atu + 1
+		ElseIf nOrdem == nOrdX3Atu
+			// Reordena os próximos SX3
+			SX3->(dbGoTop())
+			DbSeek(cAlias)
+			nOrdX3Atu:= 0
+			While !Eof() .And. X3_ARQUIVO == cAlias
+				If AllTrim(X3_CAMPO) != AllTrim(cChave)
+					nOrdX3Atu++
+					If nOrdX3Atu == nOrdem
+						nOrdX3Atu++
+					EndIf
+					aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
+				EndIf
+				dbSkip()
+			EndDo
+		EndIf
+
+		If nOrdem <= 0
+			nOrdem:= 1
+		EndIf
+	Else
+		nOrdem:= 1
+	EndIf
+
+	aAdd(aUpdate, { "X3_ORDEM", RetAsc(nOrdem,2,.T.) })
+
+	If Len(aRecOrd) > 0
+		aAdd(aUpdate, { "UPDCUSTOM_X3REORDER", aRecOrd })
+	EndIf
+
+	DbSetOrder(2)
+	If nRecno != 0
+		dbGoTo(nRecno)
+	EndIf
+
+	// ========================================================
+	// Ajusta Ordem do campo - FIM
+	// ========================================================	
+
+Return (Nil)
+// FIM da Função AjustaSX3
 //====================================================================================================================\\
 
 
