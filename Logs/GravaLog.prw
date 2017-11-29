@@ -59,6 +59,11 @@ User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData)
 				"> " + DToC(Date()) + " - " + Time() + " - " + cPrcLog + CRLF + ;
 				">> " + AllTrim(cLog) + CRLF
 
+		If ! SfMkDir( cDirLog )
+			ConOut( "Erro ao criar o diretório de logs: " + cDirLog )
+			Return
+		EndIf
+
 		If File( cDirLog + cArqLog )
 			nHandle:= FOpen( cDirLog + cArqLog, FO_READWRITE + FO_SHARED )
 		Else
@@ -75,4 +80,50 @@ User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData)
 
 Return
 // FIM da Funcao GravaLog
+//======================================================================================================================
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}SfMkDir
+  ====================================================================================================================
+	@description
+	Cria a estrutura de pastas passada
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		07/06/2016
+
+/*/
+//===================================================================================================================\\
+Static Function SfMkDir( cDirFull )
+
+	Local lRet		:= .F.
+	Local cDirTmp	:= ""
+	Local lRemoto
+	Local aDir, nX
+
+	Default cDirFull:= "\LOGS\"
+
+	lRemoto:= ! (":" $ cDirFull)
+	aDir:= StrToKarr( cDirFull, "\" )
+
+	For nX:= 1 To Len(aDir)
+
+		cDirTmp+= If(nX == 1 .And. ! lRemoto, "", "\") + aDir[nX]
+
+		If ! Empty( aDir[nX] ) .And. ! ExistDir( aDir[nX] )
+			If MakeDir( aDir[nX] ) <> 0
+				Help(" ",1,"NOMAKEDIR")
+				lRet := .F.
+				Exit
+			EndIf
+		EndIf
+
+	Next nX
+
+	lRet:= ExistDir( cDirfull )
+
+Return ( lRet )
+// FIM da Funcao SfMkDir
 //======================================================================================================================
