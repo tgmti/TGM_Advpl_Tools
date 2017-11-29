@@ -711,45 +711,45 @@ METHOD AjustaSX6(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 	Local nX6TamDes
 
 	If lInclui
-
 		::DefaultProp(aUpdate, "X6_TIPO", "C")
 		::DefaultProp(aUpdate, "X6_PROPRI", "U")
 		::DefaultProp(aUpdate, "X6_PYME", "S")
-		::DefaultProp(aUpdate, "X6_DESCRIC", "")
-		::DefaultProp(aUpdate, "X6_DESC1", "")
-		::DefaultProp(aUpdate, "X6_DESC2", "")
+	EndIf
 
-		cX6Descri:= ::GetProperty(aUpdate, "X6_DESCRIC")
-		cX6Descri+= ::GetProperty(aUpdate, "X6_DESC1")
-		cX6Descri+= ::GetProperty(aUpdate, "X6_DESC2")
-		nX6TamDes:= Len(SX6->X6_DESCRIC)
+	::DefaultProp(aUpdate, "X6_DESCRIC", "")
+	::DefaultProp(aUpdate, "X6_DESC1", "")
+	::DefaultProp(aUpdate, "X6_DESC2", "")
+
+	cX6Descri:= ::GetProperty(aUpdate, "X6_DESCRIC")
+	cX6Descri+= ::GetProperty(aUpdate, "X6_DESC1")
+	cX6Descri+= ::GetProperty(aUpdate, "X6_DESC2")
+	nX6TamDes:= Len(SX6->X6_DESCRIC)
+
+	If Len(cX6Descri) > nX6TamDes
+		::SetProperty(aUpdate, "X6_DESCRIC", Substr(cX6Descri, 1, nX6TamDes))
+
+		cX6Descri:= Substr(cX6Descri, nX6TamDes+1)
+		nX6TamDes:= Len(SX6->X6_DESC1)
+		::SetProperty(aUpdate, "X6_DESC1", Substr(cX6Descri, 1, nX6TamDes))
 
 		If Len(cX6Descri) > nX6TamDes
-			::SetProperty(aUpdate, "X6_DESCRIC", Substr(cX6Descri, 1, nX6TamDes))
-
 			cX6Descri:= Substr(cX6Descri, nX6TamDes+1)
-			nX6TamDes:= Len(SX6->X6_DESC1)
-			::SetProperty(aUpdate, "X6_DESC1", Substr(cX6Descri, 1, nX6TamDes))
-
-			If Len(cX6Descri) > nX6TamDes
-				cX6Descri:= Substr(cX6Descri, nX6TamDes+1)
-				nX6TamDes:= Len(SX6->X6_DESC2)
-				::SetProperty(aUpdate, "X6_DESC2", Substr(cX6Descri, 1, nX6TamDes))
-			EndIf
-
+			nX6TamDes:= Len(SX6->X6_DESC2)
+			::SetProperty(aUpdate, "X6_DESC2", Substr(cX6Descri, 1, nX6TamDes))
 		EndIf
 
-		::DefaultProp(aUpdate, "X6_DSCSPA", ::GetProperty(aUpdate, "X6_DESCRIC"))
-		::DefaultProp(aUpdate, "X6_DSCENG", ::GetProperty(aUpdate, "X6_DESCRIC"))
-		::DefaultProp(aUpdate, "X6_DSCSPA1", ::GetProperty(aUpdate, "X6_DESC1"))
-		::DefaultProp(aUpdate, "X6_DSCENG1", ::GetProperty(aUpdate, "X6_DESC1"))
-		::DefaultProp(aUpdate, "X6_DSCSPA2", ::GetProperty(aUpdate, "X6_DESC2"))
-		::DefaultProp(aUpdate, "X6_DSCENG2", ::GetProperty(aUpdate, "X6_DESC2"))
+	EndIf
 
-		If ! Empty( ::GetProperty(aUpdate, "X6_CONTEUD") )
-			::DefaultProp(aUpdate, "X6_CONTSPA", ::GetProperty(aUpdate, "X6_CONTEUD"))
-			::DefaultProp(aUpdate, "X6_CONTENG", ::GetProperty(aUpdate, "X6_CONTEUD"))
-		EndIf
+	::DefaultProp(aUpdate, "X6_DSCSPA", ::GetProperty(aUpdate, "X6_DESCRIC"))
+	::DefaultProp(aUpdate, "X6_DSCENG", ::GetProperty(aUpdate, "X6_DESCRIC"))
+	::DefaultProp(aUpdate, "X6_DSCSPA1", ::GetProperty(aUpdate, "X6_DESC1"))
+	::DefaultProp(aUpdate, "X6_DSCENG1", ::GetProperty(aUpdate, "X6_DESC1"))
+	::DefaultProp(aUpdate, "X6_DSCSPA2", ::GetProperty(aUpdate, "X6_DESC2"))
+	::DefaultProp(aUpdate, "X6_DSCENG2", ::GetProperty(aUpdate, "X6_DESC2"))
+
+	If ! Empty( ::GetProperty(aUpdate, "X6_CONTEUD") )
+		::DefaultProp(aUpdate, "X6_CONTSPA", ::GetProperty(aUpdate, "X6_CONTEUD"))
+		::DefaultProp(aUpdate, "X6_CONTENG", ::GetProperty(aUpdate, "X6_CONTEUD"))
 	EndIf
 
 Return (Nil)
