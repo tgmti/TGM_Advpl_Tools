@@ -33,6 +33,7 @@ User Function UPDCUSTST
 
 	aAdd(aPar1, {"X6_VAR", "MV_ZTSTCMP"})
 	aAdd(aPar1, {"X6_DESCRIC", "Teste de Parametro inserido por compatibilizador customizado. " + Repl("-",50) + Repl("#",50)})
+	aAdd(aPar1, {"X6_CONTEUD", "ABC"})
 
 	// Teste de adição de campo
 	oCompat:AddProperty("SX3", aCpo1)
