@@ -468,6 +468,8 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 				If ! Empty(cAlias) .And. aScan(aArqUpd, {|x| x == cAlias }) == 0
 					aAdd(aArqUpd, cAlias)
 				EndIf
+			Else
+				AutoGrLog(' - Chave: ' + cChave + ' NÃO ATUALIZADA!' + CRLF )
 			EndIf
 
 			(cAliSX)->(MsUnlock())
