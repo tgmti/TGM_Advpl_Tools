@@ -833,6 +833,7 @@ METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 		::DefaultProp(aUpdate, "X3_PROPRI", "U")
 		::DefaultProp(aUpdate, "X3_VISUAL", "A")
 		::DefaultProp(aUpdate, "X3_CONTEXT", "R")
+		::DefaultProp(aUpdate, "X3_BROWSE", "N")
 		::DefaultProp(aUpdate, "X3_PYME", "S")
 		::DefaultProp(aUpdate, "X3_TITSPA", ::GetProperty(aUpdate, "X3_TITULO"))
 		::DefaultProp(aUpdate, "X3_TITENG", ::GetProperty(aUpdate, "X3_TITULO"))
