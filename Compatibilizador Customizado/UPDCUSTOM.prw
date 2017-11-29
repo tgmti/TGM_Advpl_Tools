@@ -452,8 +452,8 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 
 						EndIf
 
-						If !lInclui
-							AutoGrLog(' - Chave: ' + cChave + ' Propriedade: ' + aUpdates[nL][nX][1] + Iif(lAtu, '' , ' já' ) + ' Atualizada' + CRLF )
+						If !lInclui // Mensagem modo verboso
+							// AutoGrLog(' - Chave: ' + cChave + ' Propriedade: ' + aUpdates[nL][nX][1] + Iif(lAtu, '' , ' já' ) + ' Atualizada' + CRLF )
 						EndIf
 					Else
 						AutoGrLog(' - Chave: ' + cChave + ' Propriedade não encontrada: ' + aUpdates[nL][nX][1] + CRLF )
@@ -585,6 +585,51 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SX6 - FIM
+		// ========================================================	
+
+
+		// ========================================================
+		// Tratamento do SX5
+		// ========================================================	
+		Case (cAliSX == "SX5")
+			dbSelectArea("SX5")
+			DbSetOrder(1)
+			dbGoTop()
+
+			::DefaultProp(aUpdate, "X5_FILIAL", Space(Len(SX5->X5_FILIAL)))
+
+			If ! Empty( ::GetProperty(aUpdate, "X5_TABELA") )
+				
+				If ! Empty( ::GetProperty(aUpdate, "X5_CHAVE") )
+					cChave:= ::GetProperty(aUpdate, "X5_FILIAL")
+					cChave+= ::GetProperty(aUpdate, "X5_TABELA")
+					cChave+= ::GetProperty(aUpdate, "X5_CHAVE")
+
+					lInclui:= ! DbSeek(cChave)
+					If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
+						AutoGrLog( "ERRO: Tabela/Chave " + cChave + " não existe no SX5." )
+					Else
+						If ! Empty( ::GetProperty(aUpdate, "X5_DESCRI") )
+							lRet:= .T.
+						Else
+							AutoGrLog( "ERRO: Propriedade 'Descricao (X5_DESCRI)' não identificada para atualização do SX5." )
+						EndIf
+					EndIf
+
+					If lRet .And. lInclui
+						::DefaultProp(aUpdate, "X5_DESCSPA", ::GetProperty(aUpdate, "X5_DESCRI"))
+						::DefaultProp(aUpdate, "X5_DESCENG", ::GetProperty(aUpdate, "X5_DESCRI"))
+					EndIf
+
+				Else
+					AutoGrLog( "ERRO: Propriedade 'CHAVE (X5_CHAVE)' não identificada para atualização do SX5." )
+				Endif
+
+			Else
+				AutoGrLog( "ERRO: Propriedade 'TABELA (X5_TABELA)' não identificada para atualização do SX5." )
+			EndIf
+		// ========================================================
+		// Tratamento do SX5 - FIM
 		// ========================================================	
 
 

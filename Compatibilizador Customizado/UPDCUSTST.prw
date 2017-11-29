@@ -19,7 +19,9 @@ User Function UPDCUSTST
 	Local aCpo1:= {}
 	Local aCpo2:= {}
 	Local aPar1:= {}
+	Local aTabGen:= {}
 	
+	// TESTE DE CAMPOS
 	aAdd(aCpo1, {"X3_CAMPO", "C5_ZTST001"} )
 	aAdd(aCpo1, {"X3_ORDEM", "13"} )
 	aAdd(aCpo1, {"X3_TAMANHO", 2} )
@@ -31,17 +33,52 @@ User Function UPDCUSTST
 	aAdd(aCpo2, {"X3_TITULO", "Tst.Comp.2"} )
 	aAdd(aCpo2, {"X3_DESCRIC", "Teste compatibilizador 2"} )
 
+	// Adiciona propriedades
+	oCompat:AddProperty("SX3", aCpo1)
+	oCompat:AddProperty("SX3", aCpo2)
+
+	// TESTE DE CAMPOS - FIM
+
+	// TESTE DE PARAMETROS
 	aAdd(aPar1, {"X6_VAR", "MV_ZTSTCMP"})
 	aAdd(aPar1, {"X6_DESCRIC", "Teste de Parametro inserido por compatibilizador customizado. " + Repl("-",50) + Repl("#",50)})
 	aAdd(aPar1, {"X6_CONTEUD", "ABC"})
 
-	// Teste de adição de campo
-	oCompat:AddProperty("SX3", aCpo1)
-	oCompat:AddProperty("SX3", aCpo2)
 	oCompat:AddProperty("SX6", aPar1)
+	// TESTE DE PARAMETROS - FIM
+
+	// TESTE DE TABELA GENERICA
+	aAdd(aTabGen, {})
+	aAdd(aTail(aTabGen), {"X5_TABELA", "00"} )
+	aAdd(aTail(aTabGen), {"X5_CHAVE", "ZA"} )
+	aAdd(aTail(aTabGen), {"X5_DESCRI", "TABELA GENERICA - TESTE COMPATIBILIZADOR"} )
+	
+	aAdd(aTabGen, {})
+	aAdd(aTail(aTabGen), {"X5_TABELA", "ZA"} )
+	aAdd(aTail(aTabGen), {"X5_CHAVE", "001"} )
+	aAdd(aTail(aTabGen), {"X5_DESCRI", "Teste Tabela generica 1"} )
+	
+	aAdd(aTabGen, {})
+	aAdd(aTail(aTabGen), {"X5_TABELA", "ZA"} )
+	aAdd(aTail(aTabGen), {"X5_CHAVE", "002"} )
+	aAdd(aTail(aTabGen), {"X5_DESCRI", "Teste Tabela generica 2"} )	
+
+
+	// Adiciona Tabelas Genéricas no compatibilizador
+	For nX:= 1 To Len(aTabGen)
+		oCompat:AddProperty("SX5", aTabGen[nX])
+	Next nX
+
+	// TESTE DE TABELA GENERICA - FIM
+
+
+	// Execução do compatibilizador
 	oCompat:RunUpdate(.T.)
 
-	RpcSetEnv( "99", "01" )
+
+	// Validação dos dados adicionados
+	//TODO: Implementar
+/* 	RpcSetEnv( "99", "01" )
 	DbSelectArea("SX3")
 	DbSetOrder(2)
 	If DbSeek("C5_ZTST001")
@@ -56,8 +93,6 @@ User Function UPDCUSTST
 
 	Else
 		ConOut("Campo C5_ZTST001 NÃO criado no SX3!!!!")
-	EndIf
-
-
+	EndIf */
 
 Return
