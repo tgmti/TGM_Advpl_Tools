@@ -587,6 +587,10 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 		// Tratamento do SX6 - FIM
 		// ========================================================	
 
+
+		Otherwise
+			AutoGrLog( "Compatibilizador não implementado para tratar o arquivo " + cAliSX )
+
 	EndCase
 
 Return (lRet)
