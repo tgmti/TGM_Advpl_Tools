@@ -27,3 +27,7 @@ org.eclipse.ltk.core.refactoring.prefs
 ## Arquivos criados por outros versionadores
 .svnignore
 .svn
+
+
+## Liberar hooks para o respositório
+!.git\hooks\update
