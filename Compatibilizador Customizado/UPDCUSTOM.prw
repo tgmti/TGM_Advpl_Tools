@@ -13,8 +13,19 @@
 	@version	1.0
 	@since		01/12/2016
 
-	@obs
-	.
+	@example
+	Local oCompat:= UPDCUSTOM():New("Compatibilizador Customizado")
+	Local aParam:= {}
+	
+	aAdd(aParam, {})
+	aAdd(aTail(aParam), {"X6_VAR", "MV_ZTEST"} )
+	aAdd(aTail(aParam), {"X6_DESCRIC", "Parametro de teste"} )
+	aAdd(aTail(aParam), {"X6_CONTEUD", "Conteudo do parametro"} )
+
+	oCompat:AddProperty( "SX6", aParam )
+
+	// Executa o compatibilizador
+	oCompat:RunUpdate(.F.)
 
 /*/
 //===================================================================================================================\\
@@ -33,6 +44,7 @@ CLASS UPDCUSTOM
 	METHOD SetProperty()
 	METHOD DefaultProp()
 	METHOD AjustaSX3()
+	METHOD AjustaSIX()
 	METHOD AjustaSX6()
 
 ENDCLASS
@@ -81,6 +93,7 @@ Return (SELF)
 	Formato da Propriedade: { "X2_CHAVE", "SC5" }
 
 	Quando for somente atualização, incluir a propriedade: { "UPDCUSTOM_SOUPDATE", .T. }
+	Quando for somente inclusao, incluir a propriedade: { "UPDCUSTOM_SOINCLUI", .T. }
 
 	Formato dos arquivos:
 	SX2: "X2_CHAVE"  , "X2_PATH"   , "X2_ARQUIVO", "X2_NOME"   , "X2_NOMESPA", "X2_NOMEENG", "X2_MODO"   , ;
@@ -170,7 +183,7 @@ METHOD RunUpdate(lAuto) CLASS UPDCUSTOM
 		If !Empty( aMarcadas )
 
 			If lAuto .Or. MsgNoYes( "Confirma a atualização dos dicionários ?", ::cTitulo )
-				oProcess := MsNewProcess():New( { | lEnd | lOk := ::FSTProc( @lEnd, aMarcadas, lAuto ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
+				oProcess := MsNewProcess():New( { | lEnd | oProcess:oMeter1:setFastMode(.T.), oProcess:oMeter2:setFastMode(.T.), lOk := ::FSTProc( @lEnd, aMarcadas, lAuto ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
 				oProcess:Activate()
 
 				If lOk
@@ -235,12 +248,21 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 
 	Private aArqUpd   := {}
 
+	oProcess:SetRegua1( 2 )
+
+	oProcess:IncRegua1("Abrindo a SM0 em Modo exclusivo")
+
 	If ( lOpen := MyOpenSm0(.T.) )
 
 		dbSelectArea( "SM0" )
 		dbGoTop()
+		
+		oProcess:IncRegua1("Lendo as Empresas que serão atualizadas")
+
+		oProcess:SetRegua2( Len(aMarcadas) )
 
 		While !SM0->( EOF() )
+			oProcess:IncRegua2("Empresa " + SM0->M0_CODIGO)
 			// Só adiciona no aRecnoSM0 se a empresa for diferente
 			If aScan( aRecnoSM0, { |x| x[2] == SM0->M0_CODIGO } ) == 0 ;
 			.AND. aScan( aMarcadas, { |x| x[1] == SM0->M0_CODIGO } ) > 0
@@ -253,7 +275,14 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 
 		If lOpen
 
+			oProcess:SetRegua1( Len( aRecnoSM0 ) * ( Len(aSXFile) + 2 ) )
+
 			For nI := 1 To Len( aRecnoSM0 )
+
+				oProcess:IncRegua1( "Atualização da empresa " + aRecnoSM0[nI][2] + " - Inicializando ambiente..." )
+
+				oProcess:SetRegua2(3)
+				oProcess:IncRegua2( "Abrindo a SM0 em Modo exclusivo..." )
 
 				If !( lOpen := MyOpenSm0(.F.) )
 					MsgStop( "Atualização da empresa " + aRecnoSM0[nI][2] + " não efetuada." )
@@ -262,17 +291,21 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 
 				SM0->( dbGoTo( aRecnoSM0[nI][1] ) )
 
+				oProcess:IncRegua2( "Inicializando ambiente..." )
+
 				RpcSetType( 3 )
 				RpcSetEnv( SM0->M0_CODIGO, SM0->M0_CODFIL )
+
+				oProcess:IncRegua2( "Inicializando log..." )
 
 				lMsFinalAuto := .F.
 				lMsHelpAuto  := .F.
 
-				AutoGrLog( Replicate( "-", 128 ) )
-				AutoGrLog( Replicate( " ", 128 ) )
+				AutoGrLog( Replicate( "-", 70 ) )
+				AutoGrLog( Replicate( " ", 70 ) )
 				AutoGrLog( "LOG DA ATUALIZAÇÃO DOS DICIONÁRIOS" )
-				AutoGrLog( Replicate( " ", 128 ) )
-				AutoGrLog( Replicate( "-", 128 ) )
+				AutoGrLog( Replicate( " ", 70 ) )
+				AutoGrLog( Replicate( "-", 70 ) )
 				AutoGrLog( " " )
 				AutoGrLog( " Dados Ambiente" )
 				AutoGrLog( " --------------------" )
@@ -299,13 +332,11 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 					AutoGrLog( " Environment........: " + aInfo[nPos][6] )
 					AutoGrLog( " Conexão............: " + AllTrim( StrTran( StrTran( aInfo[nPos][7], Chr( 13 ), "" ), Chr( 10 ), "" ) ) )
 				EndIf
-				AutoGrLog( Replicate( "-", 128 ) )
+				AutoGrLog( Replicate( "-", 70 ) )
 				AutoGrLog( " " )
 
-				AutoGrLog( Replicate( "-", 128 ) )
+				AutoGrLog( Replicate( "-", 70 ) )
 				AutoGrLog( "Empresa : " + SM0->M0_CODIGO + "/" + SM0->M0_NOME + CRLF )
-
-				oProcess:SetRegua1( Len(aSXFile) )
 
 				For nL:= 1 To Len(aSXFile)
 
@@ -357,9 +388,9 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 
 				EndIf
 
-				AutoGrLog( Replicate( "-", 128 ) )
+				AutoGrLog( Replicate( "-", 70 ) )
 				AutoGrLog( " Data / Hora Final.: " + DtoC( Date() ) + " / " + Time() )
-				AutoGrLog( Replicate( "-", 128 ) )
+				AutoGrLog( Replicate( "-", 70 ) )
 
 				RpcClearEnv()
 
@@ -496,7 +527,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 	
 	Next nL
 
-	AutoGrLog( CRLF + "Final da Atualização do arquivo " + cAliSX + CRLF + Replicate( "-", 128 ) + CRLF )
+	AutoGrLog( CRLF + "Final da Atualização do arquivo " + cAliSX + CRLF + Replicate( "-", 70 ) + CRLF )
 
 Return NIL
 // FIM da Função FSAtuFile
@@ -532,6 +563,8 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 				lInclui:= ! DbSeek(cChave)
 				If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
 					AutoGrLog( "ERRO: Campo " + cChave + " não existe no SX3." )
+				ElseIf ! lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOINCLUI")
+					AutoGrLog( "ERRO: Campo " + cChave + " já existe no SX3." )
 				Else
 					lRet:= .T.
 				EndIf
@@ -557,6 +590,52 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 
 		// ========================================================
+		// Tratamento do SIX
+		// ========================================================	
+		Case (cAliSX == "SIX")
+			dbSelectArea("SIX")
+			DbSetOrder(1)
+
+			::DefaultProp(aUpdate, "UPDCUSTOM_SOINCLUI", .T.) // Padrão do índice é só inclusão
+
+			If ! Empty(::GetProperty(aUpdate, "INDICE"))
+				
+				cChave:= cAlias:= ::GetProperty(aUpdate, "INDICE")
+
+				If ! Empty(::GetProperty(aUpdate, "ORDEM"))
+					
+					cChave+= ::GetProperty(aUpdate, "ORDEM")
+
+					If ! Empty(::GetProperty(aUpdate, "CHAVE"))
+					
+						lInclui:= ! DbSeek(cChave)
+						If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
+							AutoGrLog( "ERRO: Índice " + cChave + " não existe no SIX." )
+						ElseIf ! lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOINCLUI")
+							AutoGrLog( "ERRO: Índice " + cChave + " já existe no SIX." )
+						Else
+							lRet:= .T.
+						EndIf
+
+						If lRet
+							lRet:= ::AjustaSIX(aUpdate, cAlias, cChave, lInclui)
+						EndIf
+
+					Else
+						AutoGrLog( "ERRO: Propriedade 'CHAVE' não identificada para atualização do SIX." )
+					EndIf
+				Else
+					AutoGrLog( "ERRO: Propriedade 'ORDEM' não identificada para atualização do SIX." )
+				EndIf
+			Else
+				AutoGrLog( "ERRO: Propriedade 'INDICE' não identificada para atualização do SIX." )
+			EndIf
+		// ========================================================
+		// Tratamento do SIX - FIM
+		// ========================================================	
+
+
+		// ========================================================
 		// Tratamento do SX6
 		// ========================================================	
 		Case (cAliSX == "SX6")
@@ -575,6 +654,8 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 				lInclui:= ! DbSeek(cChave)
 				If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
 					AutoGrLog( "ERRO: Parâmetro " + cChave + " não existe no SX6." )
+				ElseIf !lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOINCLUI")
+					AutoGrLog( "ERRO: Parâmetro " + cChave + " já existe no SX6." )
 				Else
 					lRet:= .T.
 				EndIf
@@ -584,6 +665,55 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 				EndIf
 			Else
 				AutoGrLog( "ERRO: Propriedade 'Nome do Parâmetro (X6_VAR)' não identificada para atualização do SX6." )
+			EndIf
+		// ========================================================
+		// Tratamento do SX6 - FIM
+		// ========================================================	
+
+
+		// ========================================================
+		// Tratamento do SX7
+		// ========================================================	
+		Case (cAliSX == "SX7")
+			dbSelectArea("SX7")
+			DbSetOrder(1)
+			dbGoTop()
+
+			::DefaultProp(aUpdate, "UPDCUSTOM_SOINCLUI", .T.) // Padrão de gatilho é só inclusão
+
+			If ! Empty(::GetProperty(aUpdate, "X7_CAMPO"))
+				If ! Empty(::GetProperty(aUpdate, "X7_SEQUENC"))
+					If ! Empty(::GetProperty(aUpdate, "X7_REGRA"))
+						If ! Empty(::GetProperty(aUpdate, "X7_CDOMIN"))
+
+							cChave:= ::GetProperty(aUpdate, "X7_CAMPO") + ::GetProperty(aUpdate, "X7_SEQUENC")
+
+							lInclui:= ! DbSeek(cChave)
+							If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
+								AutoGrLog( "ERRO: Gatilho " + cChave + " não existe no SX7." )
+							ElseIf ! lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOINCLUI")
+								AutoGrLog( "ERRO: Gatilho " + cChave + " já existe no SX7." )
+							Else
+								lRet:= .T.
+							EndIf
+
+							If lRet
+								::DefaultProp(aUpdate, "X7_TIPO", "P")
+								::DefaultProp(aUpdate, "X7_SEEK", "N")
+								::DefaultProp(aUpdate, "X7_PROPRI", "U")
+							EndIf
+
+						Else
+							AutoGrLog( "ERRO: Propriedade 'X7_CDOMIN' não identificada para atualização do SX7." )
+						EndIF
+					Else
+						AutoGrLog( "ERRO: Propriedade 'X7_REGRA' não identificada para atualização do SX7." )
+					EndIF
+				Else
+					AutoGrLog( "ERRO: Propriedade 'X7_SEQUENC' não identificada para atualização do SX7." )
+				EndIF
+			Else
+				AutoGrLog( "ERRO: Propriedade 'X7_CAMPO' não identificada para atualização do SX7." )
 			EndIf
 		// ========================================================
 		// Tratamento do SX6 - FIM
@@ -610,6 +740,8 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 					lInclui:= ! DbSeek(cChave)
 					If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
 						AutoGrLog( "ERRO: Tabela/Chave " + cChave + " não existe no SX5." )
+					ElseIf !lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOINCLUI")
+						AutoGrLog( "ERRO: Tabela/Chave " + cChave + " já existe no SX5." )
 					Else
 						If ! Empty( ::GetProperty(aUpdate, "X5_DESCRI") )
 							lRet:= .T.
@@ -666,16 +798,16 @@ METHOD GetProperty(aProper, cProper) CLASS UPDCUSTOM
 	nPos:= aScan(aProper, {|x| x[1] == cProper })
 
 	If nPos > 0
-		//  Se informar a Propriedade UPDCUSTOM_SOUPDATE não lógica, considera verdadeiro.
-		If cProper == "UPDCUSTOM_SOUPDATE" .And. ( Len(aProper[nPos]) < 2 .Or. ValType( aProper[nPos][2] ) != "L" )
+		//  Se informar a Propriedade UPDCUSTOM_SOUPDATE ou "UPDCUSTOM_SOINCLUI" não lógica, considera verdadeiro.
+		If "UPDCUSTOM_SO" $ cProper .And. ( Len(aProper[nPos]) < 2 .Or. ValType( aProper[nPos][2] ) != "L" )
 			xRet:= .T.
 		Else
 			xRet:= aProper[nPos][2]
 		EndIf
 	EndIf
 
-	// Padrão para a propriedade UPDCUSTOM_SOUPDATE é .F.
-	If cProper == "UPDCUSTOM_SOUPDATE" .And. ValType( xRet ) != "L"
+	// Padrão para as propriedade UPDCUSTOM_SO é .F.
+	If "UPDCUSTOM_SO" $ cProper .And. ValType( xRet ) != "L"
 		xRet:= .F.
 	EndIf
 
@@ -801,6 +933,63 @@ METHOD AjustaSX6(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 Return (Nil)
 // FIM da Função AjustaSX6
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}AjustaSIX
+  ====================================================================================================================
+	@description
+	Ajustes para inclusão de campo no SX3
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+METHOD AjustaSIX(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
+
+	Local aArea:= GetArea()
+	Local cChvSIX:= ::GetProperty(aUpdate, "CHAVE")
+	Local aCampos:= Strtokarr2( cChvSIX, "+", .F.)
+	Local lDescri:= lInclui .And. Empty( ::GetProperty(aUpdate, "DESCRICAO") )
+	Local cDescricao:= ""
+	Local cDescSpa:= ""
+	Local cDescEng:= ""
+	Local nX
+
+	dbSelectArea("SX3")
+	DbSetOrder(2)
+
+	For nX:= 1 To Len(aCampos)
+		If DbSeek(AllTrim(aCampos[nX]))
+			If lDescri
+				cDescricao+= If(nX>1," + ","") + AllTrim(SX3->X3_TITULO)
+				cDescSpa+= If(nX>1," + ","") + SX3->X3_TITSPA
+				cDescEng+= If(nX>1," + ","") + SX3->X3_TITENG
+			EndIf
+		Else
+			AutoGrLog("ERRO: Índice " + cOrdem + ", Campo " + AllTrim(aCampos[nX]) + " não encontrado no SX3!")
+			Return (.F.)
+		EndIf
+	Next nX
+
+	If lInclui
+		::DefaultProp(aUpdate, "PROPRI", "U")
+
+		If lDescri
+			::DefaultProp(aUpdate, "DESCRICAO", cDescricao)
+			::DefaultProp(aUpdate, "DESCSPA", cDescSpa)
+			::DefaultProp(aUpdate, "DESCENG", cDescEng)
+		EndIf
+	EndIf
+
+	RestArea(aArea)
+
+Return (.T.)
+// FIM da Função AjustaSIX
 //====================================================================================================================\\
 
 
