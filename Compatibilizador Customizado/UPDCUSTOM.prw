@@ -43,6 +43,7 @@ CLASS UPDCUSTOM
 	METHOD GetProperty()
 	METHOD SetProperty()
 	METHOD DefaultProp()
+	METHOD AjustaSX2()
 	METHOD AjustaSX3()
 	METHOD AjustaSIX()
 	METHOD AjustaSX6()
