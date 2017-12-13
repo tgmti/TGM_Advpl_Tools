@@ -141,12 +141,12 @@ Return (Nil)
 
 /*/
 //====================================================================================================================\\
-METHOD RunUpdate(lAuto) CLASS UPDCUSTOM
+METHOD RunUpdate(lAuto, aMarcadas) CLASS UPDCUSTOM
 	Local lOk:= .F.
 	Local aMsg:= {}
 	Local aButton:= {}
-	Local aMarcadas:= {}
 
+	Default aMarcadas:= {}
 	Default lAuto:= .F.
 
 	Private oMainWnd  := NIL
@@ -178,7 +178,7 @@ METHOD RunUpdate(lAuto) CLASS UPDCUSTOM
 	EndIf
 
 	If lOk
-		aMarcadas := EscEmpresa(lAuto)
+		aMarcadas := EscEmpresa(lAuto, aMarcadas)
 
 		If !Empty( aMarcadas )
 
@@ -551,6 +551,39 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 	Local lRet:= .F.
 
 	Do Case
+
+		// ========================================================
+		// Tratamento do SX2
+		// ========================================================	
+		Case (cAliSX == "SX2")
+			dbSelectArea("SX2")
+			DbSetOrder(1)
+			cChave:= ::GetProperty(aUpdate, "X2_CHAVE")
+			If ! Empty(cChave)
+				lInclui:= ! DbSeek(cChave)
+				If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
+					AutoGrLog( "ERRO: Tabela " + cChave + " não existe no SX2." )
+				ElseIf ! lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOINCLUI")
+					AutoGrLog( "ERRO: Tabela " + cChave + " já existe no SX2." )
+				Else
+					lRet:= .T.
+				EndIf
+
+				If lRet
+
+					// Determina o Alias do campo
+					cAlias:= cChave
+
+					::AjustaSX2(aUpdate, cAlias, cChave, lInclui)
+
+				EndIf
+			Else
+				AutoGrLog( "ERRO: Propriedade 'Chave' não identificada para atualização do SX2." )
+			EndIf
+		// ========================================================
+		// Tratamento do SX2 - FIM
+		// ========================================================	
+
 
 		// ========================================================
 		// Tratamento do SX3
@@ -1110,6 +1143,41 @@ METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 Return (Nil)
 // FIM da Função AjustaSX3
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}AjustaSX2
+  ====================================================================================================================
+	@description
+	Ajustes para inclusão de Tabela no SX2
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+METHOD AjustaSX2(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
+
+	If lInclui
+		::DefaultProp(aUpdate, "X2_ARQUIVO", cEmpAnt + "0")
+		
+		::DefaultProp(aUpdate, "X2_MODO", "C")
+		::DefaultProp(aUpdate, "X2_MODOUN", "C")
+		::DefaultProp(aUpdate, "X2_MODOEMP", "C")
+
+		::DefaultProp(aUpdate, "X2_PYME", "S")
+		
+		::DefaultProp(aUpdate, "X2_NOME", "Tabela: " + ::GetProperty(aUpdate, "X2_CHAVE"))
+		::DefaultProp(aUpdate, "X2_NOMESPA", ::GetProperty(aUpdate, "X2_NOME"))
+		::DefaultProp(aUpdate, "X2_NOMEENG", ::GetProperty(aUpdate, "X2_NOME"))
+
+	EndIf
+
+Return (Nil)
+// FIM da Função AjustaSX2
 //====================================================================================================================\\
 
 

@@ -27,7 +27,7 @@ Função genérica para escolha de Empresa, montada pelo SM0
 @version 1.0
 /*/
 //--------------------------------------------------------------------
-Static Function EscEmpresa(lTodas)
+Static Function EscEmpresa(lTodas, aMarcadas)
 
 	//---------------------------------------------
 	// Parâmetro  nTipo
@@ -55,7 +55,7 @@ Static Function EscEmpresa(lTodas)
 	Local   oDlg, oChkMar, oLbx, oMascEmp, oSay
 	Local   oButDMar, oButInv, oButMarc, oButOk, oButCanc
 
-	Local   aMarcadas := {}
+	Default aMarcadas := {}
 
 	Default lTodas:= .F.
 
