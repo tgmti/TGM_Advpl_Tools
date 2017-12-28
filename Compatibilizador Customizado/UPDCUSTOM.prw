@@ -35,6 +35,7 @@ CLASS UPDCUSTOM
 	DATA cTitulo
 
 	METHOD New() CONSTRUCTOR
+	METHOD Destroy()
 	METHOD AddProperty()
 	METHOD RunUpdate()
 	METHOD FSTProc()
@@ -43,6 +44,7 @@ CLASS UPDCUSTOM
 	METHOD GetProperty()
 	METHOD SetProperty()
 	METHOD DefaultProp()
+	METHOD AjustaSX1()
 	METHOD AjustaSX2()
 	METHOD AjustaSX3()
 	METHOD AjustaSIX()
@@ -76,6 +78,29 @@ METHOD New(cTitulo) CLASS UPDCUSTOM
 
 Return (SELF)
 // FIM do método New
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}Destroy
+  ====================================================================================================================
+	@description
+	Método destrutor da Classe
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+	@return		Nil, Nulo
+
+/*/
+//====================================================================================================================\\
+METHOD Destroy() CLASS UPDCUSTOM
+
+	FreeObj(SELF)
+
+Return (Nil)
+// FIM do método Destroy
 //====================================================================================================================\\
 
 
@@ -552,6 +577,42 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 	Local lRet:= .F.
 
 	Do Case
+
+		// ========================================================
+		// Tratamento do SX1
+		// ========================================================	
+		Case (cAliSX == "SX1")
+			dbSelectArea("SX1")
+			DbSetOrder(1)
+			cChave:= ::GetProperty(aUpdate, "X1_GRUPO")
+			If ! Empty(cChave)
+
+				If ! Empty( ::GetProperty(aUpdate, "X1_ORDEM") )
+
+					cChave+= ::GetProperty(aUpdate, "X1_ORDEM")
+
+					lInclui:= ! DbSeek(cChave)
+					If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
+						AutoGrLog( "ERRO: Pergunta " + cChave + " não existe no SX1." )
+					ElseIf ! lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOINCLUI")
+						AutoGrLog( "ERRO: Pergunta " + cChave + " já existe no SX1." )
+					Else
+						lRet:= .T.
+					EndIf
+
+					If lRet
+						::AjustaSX1(aUpdate, cAlias, cChave, lInclui)
+					EndIf
+				Else
+					AutoGrLog( "ERRO: Propriedade 'Ordem' não identificada para atualização do SX1." )
+				EndIf
+			Else
+				AutoGrLog( "ERRO: Propriedade 'Grupo' não identificada para atualização do SX1." )
+			EndIf
+		// ========================================================
+		// Tratamento do SX1 - FIM
+		// ========================================================	
+
 
 		// ========================================================
 		// Tratamento do SX2
@@ -1179,6 +1240,31 @@ METHOD AjustaSX2(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 Return (Nil)
 // FIM da Função AjustaSX2
+//====================================================================================================================\\
+
+
+
+//====================================================================================================================\\
+/*/{Protheus.doc}AjustaSX1
+  ====================================================================================================================
+	@description
+	Ajustes para inclusão de Tabela no SX1
+
+	@author		TSC681 Thiago Mota
+	@version	1.0
+	@since		01/12/2016
+
+/*/
+//====================================================================================================================\\
+METHOD AjustaSX1(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
+
+	If lInclui
+		::DefaultProp(aUpdate, "X1_PERSPA", ::GetProperty(aUpdate, "X1_PERGUNT"))
+		::DefaultProp(aUpdate, "X1_PERENG", ::GetProperty(aUpdate, "X1_PERGUNT"))
+	EndIf
+
+Return (Nil)
+// FIM da Função AjustaSX1
 //====================================================================================================================\\
 
 
