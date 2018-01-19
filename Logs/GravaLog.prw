@@ -1,6 +1,18 @@
 #Include 'Protheus.ch'
 #Include 'fileio.ch'
-#INCLUDE 'TRA43EDI.CH'
+
+#DEFINE LOG_INFO	0
+#DEFINE LOG_ERRO	0
+#DEFINE LOG_AVISO	1
+#DEFINE LOG_INFDET	2
+#DEFINE LOG_INFDETA	3
+#DEFINE LOG_INFDETB	4
+#DEFINE LOG_TUDO	9
+
+#DEFINE FS_SET		0 // Ajusta a partir do início do arquivo. (Padrão)
+#DEFINE FS_RELATIVE	1 // Ajuste relativo a posição atual do arquivo.
+#DEFINE FS_END		2 // Ajuste a partir do final do arquivo.
+#DEFINE STRSEP		"================================================================"
 
 //====================================================================================================================\\
 /*/{Protheus.doc}GravaLog
@@ -14,9 +26,10 @@
 
 /*/
 //===================================================================================================================\\
-User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData)
+User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData, lConOut, nStrSep)
 
 	Local cData:= DToS(Date())
+	Local cLogF:= ""
 
 	Static nHandle
 	Static cPrcLog
@@ -25,20 +38,25 @@ User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData)
 	Static nNivPar
 
 	Default nNivLog:= 0
-	Default nNivPar:= SuperGetMv("MV_ZNIVLOG", .F., LOG_TUDO)
+	Default nNivPar:= LOG_TUDO
+	Default lConOut:= .F.
+	Default nStrSep:= 0 // 0 - Acima, 1 - Abaixo, 2 - Não
 
 	If nNivPar >= nNivLog
 
+
+		If ! Empty(cArquivo)
+			cArqLog:= cArquivo
+		ElseIf ! Empty(cArqLog) .And. ! Empty(cPrcLog) .And. ! Empty(cProcesso) .And. cProcesso != cPrcLog
+			cArqLog:= Nil
+		Endif
+		
 		If ! Empty(cProcesso)
 			cPrcLog:= cProcesso
 		Endif
 
 		If ! Empty(cDiretorio)
 			cDirLog:= cDiretorio
-		Endif
-
-		If ! Empty(cArquivo)
-			cArqLog:= cArquivo
 		Endif
 
 		Default cLog	:= ""
@@ -55,9 +73,25 @@ User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData)
 			cArqLog+= ".LOG"
 		EndIf
 
-		cLog:=	STRSEP + CRLF + ;
-				"> " + DToC(Date()) + " - " + Time() + " - " + cPrcLog + CRLF + ;
-				">> " + AllTrim(cLog) + CRLF
+		If nStrSep== 0 // Acima
+			cLogF+=	STRSEP + CRLF
+			If lData
+				cLogF+=	"> " + DToC(Date()) + " - " + Time() + " - " + cPrcLog + CRLF
+			EndIf
+		EndIf
+
+		If nStrSep== 2 .And. lData
+			cLogF+=	"> " + DToC(Date()) + " - " + Time() + " - " + cPrcLog + CRLF
+		EndIf
+
+		cLogF+= ">> " + AllTrim(cLog) + CRLF
+
+		If nStrSep== 1 // Abaixo
+			If lData
+				cLogF+=	"> " + DToC(Date()) + " - " + Time() + " - " + cPrcLog + CRLF
+			EndIf
+			cLogF+=	STRSEP + CRLF
+		EndIf
 
 		If ! SfMkDir( cDirLog )
 			ConOut( "Erro ao criar o diretório de logs: " + cDirLog )
@@ -72,13 +106,18 @@ User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData)
 
 		If nHandle >= 0
 			FSEEK(nHandle, 0, FS_END)
-			FWrite( nHandle, cLog )
-			FT_FUse()
+			FWrite( nHandle, cLogF )
+			//FT_FUse()
+			fClose( nHandle )
+		EndIf
+
+		If lConOut
+			ConOut( cLogF )
 		EndIf
 
 	EndIf
 
-Return
+Return (cLogF)
 // FIM da Funcao GravaLog
 //======================================================================================================================
 
@@ -127,3 +166,5 @@ Static Function SfMkDir( cDirFull )
 Return ( lRet )
 // FIM da Funcao SfMkDir
 //======================================================================================================================
+
+
