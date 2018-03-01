@@ -15,15 +15,32 @@
 //===================================================================================================================\\
 User Function TGetDba()
 
-	Local cApxSrvIni	:= GetADV97()
-	Local cEnvAtu		:= GetEnvServer()
+	Local cApxSrvIni:= GetADV97()
+	Local cEnvAtu	:= GetEnvServer()
 	Local cDataBase	:= GetPvProf({"TOPDATABASE", "DBDATABASE"}, cEnvAtu, cApxSrvIni)
-	Local cServer		:= GetPvProf({"TOPSERVER", "DBSERVER"}, cEnvAtu, cApxSrvIni)
+	Local cServer	:= GetPvProf({"TOPSERVER", "DBSERVER"}, cEnvAtu, cApxSrvIni)
 	Local nPort		:= Val( GetPvProf({"TOPPORT", "DBPORT"}, cEnvAtu, cApxSrvIni) )
 	Local cAliasDb	:= GetPvProf({"TOPALIAS", "DBALIAS"}, cEnvAtu, cApxSrvIni)
 	Local aDadosDba
 
-	//TODO: Se não encontrou, bucar da chave DbAccess
+	If Empty(cDataBase)
+		cDataBase:= GetPvProf({"DataBase"}, "DBAccess", cApxSrvIni)
+	EndIf
+
+	If Empty(cServer)
+		cServer:= GetPvProf({"Server"}, "DBAccess", cApxSrvIni)
+	EndIf
+
+	If Empty(cAliasDb)
+		cAliasDb:= GetPvProf({"ALIAS"}, "DBAccess", cApxSrvIni)
+	EndIf
+
+	If Empty(nPort)
+		nPort:= Val( GetPvProf({"Port"}, "DBAccess", cApxSrvIni) )
+		If Empty(nPort)
+			nPort:= 7890
+		EndIf
+	EndIf
 
 	aDadosDba	:= { cDataBase, cServer, nPort, cAliasDb }
 
@@ -32,6 +49,18 @@ Return ( aDadosDba )
 //======================================================================================================================
 
 
+//====================================================================================================================\
+/*/{Protheus.doc}GetPvProf
+  ====================================================================================================================
+	@description
+	Retorna a chave do aruqivo .ini, testando várias opções
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 28/02/2018
+
+/*/
+//===================================================================================================================\
 Static Function GetPvProf(aKey, cEnvAtu, cApxSrvIni)
 
 	Local cKeyRet:= ""
@@ -43,6 +72,7 @@ Static Function GetPvProf(aKey, cEnvAtu, cApxSrvIni)
 	EndDo
 
 Return( cKeyRet )
-
+// FIM da Funcao GetPvProf
+//======================================================================================================================
 
 
