@@ -185,7 +185,6 @@ Return ( Nil )
 Static Function SfExport(nTipo, cDirExp)
 
 	Local lRet:= .F.
-	Local cArqXml
 	Local aXmlNfe
 	Local cArqXml:= ""
 	Local nCreArq
