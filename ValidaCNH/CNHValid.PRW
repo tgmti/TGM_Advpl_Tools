@@ -1,7 +1,6 @@
 #INCLUDE "PROTHEUS.CH"
 
 
-
 //====================================================================================================================\
 /*/{Protheus.doc}CNHValid
   ====================================================================================================================
@@ -43,80 +42,91 @@
 	b) O Formulário RENACH que dá origem às informações na BINCO e autorização para a impressão da CNH deverá ficar 
 	arquivado em segurança, no órgão ou entidade executivo de trânsito do Estado ou do Distrito Federal.
 
-	=================================================
-
-	Método:
-	DV módulo 11 corresponde ao resto da divisão por 11 do somatório da multiplicação de cada algarismo da base 
-	respectivamente por 9, 8, 7, 6, 5, 4, 3, 2, 1 e 0, a partir da unidade. O resto 10 é considerado 0. 
-	Seguindo a resolução, o resto 1 também deve ser considerado 0, porém existem casos de CNH com dígito 1.
-
-	=================================================
-
 /*/
 //===================================================================================================================\
 User Function CNHValid( cNumCNH )
 	
 	Local lRet:= .F.
-	Local nX, nY
-	Local cChar
-	Local nAuxDig
-	Local nDig
-	Local cNumFim:= ""
+	Local nY
 	Local cNumValid:= ""
 	Local cDig:= ""
-	Local nSoma:= 0
+	Local xMod
 
-	cNumCNH:= &(ReadVar())
+	Default cNumCNH:= &(ReadVar())
 
 	cNumCNH:= AllTrim(cNumCNH)
 
-	If Len(cNumCNH) > 8
+	If Len(cNumCNH) <> 11
+		cNumValid:= Left(cNumCNH, 9)
 
 		For nY:= 1 To 2
-
-			nAuxDig:= If(nY==1, 1, 0)
-
-			For nX:= 1 To Len(cNumCNH)
-				cChar:= Substr(cNumCNH, nX, 1)
-
-				If isAlpha( cChar )
-					Help(" ", 1, "ONLYNUM")
-					Return lRet
-				EndIf
-
-				If nX < (Len(cNumCNH)-2)
-					If nY == 1
-						cNumValid+= cChar
-						cNumFim+= cChar
-					EndIf
-					nSoma+= nAuxDig * Val(cChar)
-					nAuxDig++
-				EndIf
-			Next nX
-
-			// Calcula o Mod
-			nDig:= nSoma % 11
-			If nDig <= 1 .Or. nDig > 9
-				nDig:= 0
+			xMod:= Mod11(cNumValid + cDig,2,10)
+			If ValType(xMod) == "L" .And. ! xMod
+				Return .F.
+			Else
+				cDig:= cDig + xMod // O dígito verificador da CNH é invertido
 			EndIf
-			cNumValid+= cValToChar(nDig)
-			cDig:= cValToChar(nDig) + cDig // O dígito verificador da CNH é invertido
-			
 		Next nY
 
-		cNumFim+= cDig
-
-		If cNumCNH <> cNumCNH
+		cNumValid+= cDig
+		If cNumCNH == cNumValid
+			lRet:= .T.
+		Else
 			HELP(' ',1,"CNH Invalido" ,,"Dígito verificador da CNH inválido",2,0,,,,,, "")
 		EndIf
 
 	Else
 		HELP(' ',1,"CNH Invalido" ,,"Número da CNH deve ter 11 caracteres",2,0,,,,,, "")
-
 	EndIf
 
 Return ( lRet )
 // FIM da Funcao CNHValid
 //======================================================================================================================
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}Mod11
+  ====================================================================================================================
+	@description
+	Calcula o Módulo 11 de uma String
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 27/06/2018
+
+	@obs
+	Método:
+	DV módulo 11 corresponde ao resto da divisão por 11 do somatório da multiplicação de cada algarismo da base 
+	respectivamente por 9, 8, 7, 6, 5, 4, 3, 2, 1 e 0, a partir da unidade. O resto 10 é considerado 0. 
+	Seguindo a resolução, o resto 1 também deve ser considerado 0 (porém, existem casos de CNH válida com dígito 1).
+
+
+/*/
+//===================================================================================================================\
+Static Function Mod11( cStr, nMultIni, nMultFim )
+	Local i, nModulo := 0, cChar, nMult
+
+	nMultIni := Iif( nMultIni==Nil,2,nMultIni )
+	nMultFim := Iif( nMultFim==Nil,9,nMultFim )
+	nMult := nMultIni
+	cStr := AllTrim(cStr)
+
+	For i := Len(cStr) to 1 Step -1
+		cChar := Substr(cStr,i,1)
+		If isAlpha( cChar )
+			Help(" ", 1, "ONLYNUM")
+			Return .f.
+		End
+		nModulo += Val(cChar)*nMult
+		nMult:= IIf(nMult==nMultfim,nMultIni,nMult+1)
+	Next
+	nRest := nModulo % 11
+	nRest := IIf(nRest==0 .or. nRest==1,0,11-nRest)
+
+Return(Str(nRest,1))
+// FIM da Funcao Mod11
+//======================================================================================================================
+
 
 
