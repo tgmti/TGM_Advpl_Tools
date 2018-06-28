@@ -1,3 +1,7 @@
+# https://github.com/victor-torres/sinesp-client/
+# pip install sinesp-client
+# Python instalado na versão 2.8.1 ou superior
+
 from sinesp_client import SinespClient
 import json
 import sys
