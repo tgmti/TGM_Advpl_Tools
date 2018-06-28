@@ -56,7 +56,7 @@ User Function CNHValid( cNumCNH )
 
 	cNumCNH:= AllTrim(cNumCNH)
 
-	If Len(cNumCNH) <> 11
+	If Len(cNumCNH) == 11
 		cNumValid:= Left(cNumCNH, 9)
 
 		For nY:= 1 To 2
@@ -64,8 +64,13 @@ User Function CNHValid( cNumCNH )
 			If ValType(xMod) == "L" .And. ! xMod
 				Return .F.
 			Else
-				cDig:= cDig + xMod // O dígito verificador da CNH é invertido
+				// Alguns casos tem dígito 1, em outros não batem o 1 é convertido para 0 conforme fiz a regulamentação
+				If xMod == "1" .And. Substr(cNumCNH, If(nY==1,10,11), 1) == "0"
+					xMod:= "0"
+				EndIf
+				cDig:= xMod + cDig // O dígito verificador da CNH é invertido
 			EndIf
+
 		Next nY
 
 		cNumValid+= cDig
