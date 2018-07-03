@@ -45,9 +45,9 @@ User Function MILIMCLI( lInterface, aDados )
 		lIncCli:= ! SA1->(DbSeek(xFilial("SA1") + cCodCli + cLojCli))
 
 		U_MILEDADO(@aDados, "A1_COD", cCodCli)
-		U_MILEDADO(@aDados, "A1_LOJCLI", cLojCli)
+		U_MILEDADO(@aDados, "A1_LOJA", cLojCli)
 
-		MATA030(aDados,If(lIncCli, 3, 4))
+		MsExecAuto( {|x,y| MATA030(x,y) }, aDados, If(lIncCli, 3, 4) )
 
 		//Verifica se ouve algum erro
 		If lMsErroAuto
@@ -58,7 +58,7 @@ User Function MILIMCLI( lInterface, aDados )
 
 
 	Else
-		cLog:= "CGC Inválido no arquivo (" + cCgcCli + ")"
+		cLog:= "CGC Inválido no arquivo (" + AllToChar(cCgcCli) + ")"
 		cDetalhe:= "Verifique o CGC do cliente no arquivo"
 		lRet:= .F.
 	EndIf
