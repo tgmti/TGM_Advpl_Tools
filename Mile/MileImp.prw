@@ -45,7 +45,7 @@ User Function MileImp(lInterface, aInfAdic, aLayout, aDados)
 
 		If ! xRet .And. ! Empty(cLog)
 
-			cDetalhe+= CRLF + "Linha: " + CRLF + GravaErro(cArqPrc, nLinAtu)
+			cLog+= CRLF + "Linha: " + CRLF + GravaErro(cArqPrc, nLinAtu)
 
 			RecLock("XXE", .T.)
 			XXE->XXE_ID:= XXEProx() // Próximo ID
