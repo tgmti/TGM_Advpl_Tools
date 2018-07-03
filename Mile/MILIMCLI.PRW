@@ -27,6 +27,10 @@ User Function MILIMCLI( lInterface, aDados )
 	Local cCpoLog
 	Local nX
 
+	Private lMsErroAuto		:= .F.
+	Private lMsHelpAuto		:= .F.
+	Private lAutoErrNoFile	:= .T.
+
 	If ! Empty(cCgcCli) .And. Cgc(AllTrim(cCgcCli))
 		cCgcCli:= AllTrim(cCgcCli)
 		If Len(cCgcCli) == 11 // CPF
@@ -43,19 +47,15 @@ User Function MILIMCLI( lInterface, aDados )
 		U_MILEDADO(@aDados, "A1_COD", cCodCli)
 		U_MILEDADO(@aDados, "A1_LOJCLI", cLojCli)
 
-		RegToMemory("SA1", lIncCli)
+		MATA030(aDados,If(lIncCli, 3, 4))
 
-		SX3->(DbSetOrder(2))
-		For nX:= 1 to Len(aDados)
-			If SX3->(DbSeek(AllTrim(aDados[nX][1])))
-				//Valida valor
-			Else
-				cLog:= "Campo não encontrado no SA1: " + AllTrim(aDados[nX][1])
-				cDetalhe:= "Verifique o Layout de importação"
-				lRet:= .F.
-				Exit
-			EndIf
-		Next
+		//Verifica se ouve algum erro
+		If lMsErroAuto
+			cLog:= "Erro ao cadastrar/alterar o cliente " + cCodCli + "-" + cLojCli + ": " + CRLF
+			aEval(GetAutoGrLog(), {|x| cDetalhe+= x + CRLF })
+			lRet:= .F.
+		EndIf
+
 
 	Else
 		cLog:= "CGC Inválido no arquivo (" + cCgcCli + ")"
