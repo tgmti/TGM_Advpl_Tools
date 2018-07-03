@@ -183,7 +183,7 @@ Static Function GravaErro( cArqPrc, nLinAtu )
 			nLiRead++
 			cLiRead:= oFileIn:GetLine()
 			If nLiRead == nLinAtu .And. ! Empty( cLiRead )
-				cLinRet:= cLiRead
+				cLinRet:= CRLF + cLiRead
 				If File( cFileOu )
 					nHndlOu:= FOpen( cFileOu, FO_READWRITE + FO_SHARED )
 				Else
