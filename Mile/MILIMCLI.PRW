@@ -31,7 +31,7 @@ User Function MILIMCLI( lInterface, aDados )
 	Private lMsHelpAuto		:= .F.
 	Private lAutoErrNoFile	:= .T.
 
-	If ! Empty(cCgcCli) .And. Cgc(AllTrim(cCgcCli))
+	If ! Empty(cCgcCli) .And. Cgc(AllTrim(cCgcCli),,.F.)
 		cCgcCli:= AllTrim(cCgcCli)
 		If Len(cCgcCli) == 11 // CPF
 			cCodCli:= Left(cCgcCli, 9)
