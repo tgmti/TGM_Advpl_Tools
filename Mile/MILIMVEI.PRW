@@ -157,3 +157,41 @@ Return ( Nil )
 
 
 
+//====================================================================================================================\
+/*/{Protheus.doc}GetMarcModel
+  ====================================================================================================================
+	@description
+	Retorna a marca e o modelo a partir do resultado da consulta Sinesp
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 04/07/2018
+
+/*/
+//===================================================================================================================\
+Static Function GetMarcModel( cConsulta, cCodMarca, cDesModel )
+	
+	Local cMarca
+
+	If ! Empty(cConsulta)
+		cConsulta:= AllTrim(cConsulta)
+		cMarca:= Left(cConsulta, At("/")-1)
+		cDesModel:= Upper(AllTrim(Substr(cConsulta, At("/")+1)))
+		SX5->(DbSetOrder(1))
+		SX5->(DbSeek(xFilial("SX5")+"M6"))
+		While SX5->(!Eof()) .And. SX5->X5_TABELA == "M6"
+			If Upper(AllTrim(cMarca)) $ Upper(AllTrim(SX5->X5_DESCRI)) ;
+			.Or. Upper(AllTrim(SX5->X5_DESCRI)) $ Upper(AllTrim(cMarca))
+				cCodMarca:= SX5->X5_CHAVE
+				Exit
+			EndIf
+			SX5->(DbSkip())
+		EndDo
+	EndIf
+
+Return ( Nil )
+// FIM da Funcao GetMarcModel
+//======================================================================================================================
+
+
+
