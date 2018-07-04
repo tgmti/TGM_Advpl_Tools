@@ -28,6 +28,7 @@ User Function MILIMVEI( lInterface, aDados )
 	Local cChassi
 	Local cChassiCon
 	Local lInclui
+	Local lConSinesp:= .F. // Habilita consulta Sinesp Cidadão
 
 	Private lMsErroAuto		:= .F.
 	Private lMsHelpAuto		:= .F.
@@ -35,7 +36,7 @@ User Function MILIMVEI( lInterface, aDados )
 
 	If ! Empty(cPlaca)
 		cPlaca:= AllTrim(cPlaca)
-		If ! Empty( oDadosVei:= ConVeiSine(cPlaca) )
+		If lConSinesp .And. ! Empty( oDadosVei:= ConVeiSine(cPlaca) )
 			If "SEM ERROS" $ Upper(oDadosVei:return_message)
 
 				If ! ("SEM RESTRI" $ Upper(oDadosVei:status_message))
@@ -96,7 +97,7 @@ User Function MILIMVEI( lInterface, aDados )
 
 
 		DA3->(DbSetOrder(1)) // DA3_FILIAL+DA3_COD
-		lInclui:= ! DA3->(DbSeek(xFilial("DA3") + cCodCli + cLojCli))
+		lInclui:= ! DA3->(DbSeek(xFilial("DA3") + cPlaca))
 
 		MsExecAuto( {|x,y,z| OMSA060(x, y) }, aDados, If(lInclui, 3, 4) )
 
@@ -175,8 +176,8 @@ Static Function GetMarcModel( cConsulta, cCodMarca, cDesModel )
 
 	If ! Empty(cConsulta)
 		cConsulta:= AllTrim(cConsulta)
-		cMarca:= Left(cConsulta, At("/")-1)
-		cDesModel:= Upper(AllTrim(Substr(cConsulta, At("/")+1)))
+		cMarca:= Left(cConsulta, At("/",cConsulta)-1)
+		cDesModel:= Upper(AllTrim(Substr(cConsulta, At("/",cConsulta)+1)))
 		SX5->(DbSetOrder(1))
 		SX5->(DbSeek(xFilial("SX5")+"M6"))
 		While SX5->(!Eof()) .And. SX5->X5_TABELA == "M6"
