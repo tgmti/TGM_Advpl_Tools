@@ -19,7 +19,7 @@
 //===================================================================================================================\
 User Function MILIMCLI( lInterface, aDados )
 
-	Local lRet:= .T.
+	Local lRet:= .F.
 	Local cCgcCli:= U_MILEDADO(aDados, "A1_CGC")
 	Local cCodCli
 	Local cLojCli

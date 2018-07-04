@@ -19,7 +19,7 @@
 //===================================================================================================================\
 User Function MILIMVEI( lInterface, aDados )
 
-	Local lRet:= .T.
+	Local lRet:= .F.
 	Local cPlaca:= U_MILEDADO(aDados, "DA3_COD")
 	Local oDadosVei
 	Local cCodMarca
@@ -34,8 +34,8 @@ User Function MILIMVEI( lInterface, aDados )
 	Private lAutoErrNoFile	:= .T.
 
 	If ! Empty(cPlaca)
-
-		If ( oDadosVei:= ConsPlaca(cPlaca) )
+		cPlaca:= AllTrim(cPlaca)
+		If ! Empty( oDadosVei:= ConVeiSine(cPlaca) )
 			If "SEM ERROS" $ Upper(oDadosVei:return_message)
 
 				If ! ("SEM RESTRI" $ Upper(oDadosVei:status_message))
