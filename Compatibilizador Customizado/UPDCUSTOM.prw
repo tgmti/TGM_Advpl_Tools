@@ -2,6 +2,7 @@
 #INCLUDE "Protheus.ch"
 #INCLUDE "UPDCUSTOM.CH"
 
+
 //====================================================================================================================\\
 /*/{Protheus.doc}UPDCUSTOM
   ====================================================================================================================
@@ -49,6 +50,13 @@ CLASS UPDCUSTOM
 	METHOD AjustaSX3()
 	METHOD AjustaSIX()
 	METHOD AjustaSX6()
+	METHOD AddSX1()
+	METHOD AddSX2()
+	METHOD AddSX3()
+	METHOD AddSX6()
+	METHOD AddSX7()
+	METHOD AddSXB()
+	METHOD AddSIX()
 
 ENDCLASS
 // FIM da Definição da Classe UPDCUSTOM
@@ -167,13 +175,14 @@ Return (Nil)
 
 /*/
 //====================================================================================================================\\
-METHOD RunUpdate(lAuto, aMarcadas) CLASS UPDCUSTOM
+METHOD RunUpdate(lAuto, aMarcadas, lShared) CLASS UPDCUSTOM
 	Local lOk:= .F.
 	Local aMsg:= {}
 	Local aButton:= {}
 
 	Default aMarcadas:= {}
 	Default lAuto:= .F.
+	Default lShared:= .F.
 
 	Private oMainWnd  := NIL
 	Private oProcess  := NIL
@@ -204,12 +213,12 @@ METHOD RunUpdate(lAuto, aMarcadas) CLASS UPDCUSTOM
 	EndIf
 
 	If lOk
-		aMarcadas := EscEmpresa(lAuto, aMarcadas)
+		aMarcadas := EscEmpresa(lAuto, aMarcadas, lShared)
 
 		If !Empty( aMarcadas )
 
 			If lAuto .Or. MsgNoYes( "Confirma a atualização dos dicionários ?", ::cTitulo )
-				oProcess := MsNewProcess():New( { | lEnd | oProcess:oMeter1:setFastMode(.T.), oProcess:oMeter2:setFastMode(.T.), lOk := ::FSTProc( @lEnd, aMarcadas, lAuto ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
+				oProcess := MsNewProcess():New( { | lEnd | oProcess:oMeter1:setFastMode(.T.), oProcess:oMeter2:setFastMode(.T.), lOk := ::FSTProc( @lEnd, aMarcadas, lAuto, lShared ) }, "Atualizando", "Aguarde, atualizando ...", .F. )
 				oProcess:Activate()
 
 				If lOk
@@ -248,7 +257,7 @@ Return
 	
 /*/
 //====================================================================================================================\\
-METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
+METHOD FSTProc( lEnd, aMarcadas, lAuto, lShared ) CLASS UPDCUSTOM
 
 	Local aInfo     := {}
 	Local aRecnoSM0 := {}
@@ -310,7 +319,7 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto ) CLASS UPDCUSTOM
 				oProcess:SetRegua2(3)
 				oProcess:IncRegua2( "Abrindo a SM0 em Modo exclusivo..." )
 
-				If !( lOpen := MyOpenSm0(.F.) )
+				If !( lOpen := MyOpenSm0( lShared ) )
 					MsgStop( "Atualização da empresa " + aRecnoSM0[nI][2] + " não efetuada." )
 					Exit
 				EndIf
@@ -486,7 +495,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 
 	For nL := 1 To Len(aUpdates)
 	
-		oProcess:IncRegua2( "Atualizando arquivo " + cAliSX + "..." )
+		oProcess:IncRegua2( "Atualizando arquivo " + cAliSX + " " + cValToChar(nL) + "/" + cValToChar(len(aUpdates)) + "..." )
 
 		lOk := .F.
 		If ::FsPosicFile(cAliSX, aUpdates[nL], @cAlias, @cChave, @lInclui)
@@ -575,6 +584,7 @@ Return NIL
 METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 	Local lRet:= .F.
+	Local cOrdemSIX
 
 	Do Case
 
@@ -586,6 +596,8 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			DbSetOrder(1)
 			cChave:= ::GetProperty(aUpdate, "X1_GRUPO")
 			If ! Empty(cChave)
+
+				cChave:= Padr(cChave, Len(X1_GRUPO))
 
 				If ! Empty( ::GetProperty(aUpdate, "X1_ORDEM") )
 
@@ -697,6 +709,25 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 				
 				cChave:= cAlias:= ::GetProperty(aUpdate, "INDICE")
 
+				If Empty(::GetProperty(aUpdate, "ORDEM"))
+					If ! ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
+						dbSelectArea("SIX")
+						DbSetOrder(1)
+						cOrdemSIX:= "0"
+						If DbSeek(cChave)
+							While ! SIX->(Eof()) .And. AllTrim(SIX->INDICE) == AllTrim(cChave)
+								cOrdemSIX:= SIX->ORDEM
+								SIX->(dbSkip())
+							EndDo
+						EndIf
+						cOrdemSIX:= Soma1(cOrdemSIX)
+						::DefaultProp(aUpdate, "ORDEM", cOrdemSIX)
+					Else
+						AutoGrLog( "ERRO: Índice Propriedade 'ORDEM' não identificada para atualização do SIX." )
+						Return(.F.)
+					EndIf
+				EndIf
+
 				If ! Empty(::GetProperty(aUpdate, "ORDEM"))
 					
 					cChave+= ::GetProperty(aUpdate, "ORDEM")
@@ -767,6 +798,46 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 
 		// ========================================================
+		// Tratamento do SXB
+		// ========================================================	
+		Case (cAliSX == "SXB")
+			dbSelectArea("SXB")
+			DbSetOrder(1)
+			dbGoTop()
+
+			::DefaultProp(aUpdate, "XB_SEQ", "01")
+			::DefaultProp(aUpdate, "XB_COLUNA", "  ")
+
+			cChave:= ::GetProperty(aUpdate, "XB_ALIAS")
+
+			If ! Empty(cChave)
+				
+				cChave:= Padr(cChave, Len(XB_ALIAS))
+
+				If ! Empty( ::GetProperty(aUpdate, "XB_TIPO") )
+					
+					cChave+= ::GetProperty(aUpdate, "XB_TIPO")
+					cChave+= ::GetProperty(aUpdate, "XB_SEQ")
+					cChave+= ::GetProperty(aUpdate, "XB_COLUNA")
+
+					If DbSeek(cChave)
+						lRet:= .T.
+					Else
+						AutoGrLog( "ERRO: Consulta padrao " + cChave + " não existe no SXB. A inclusão da SXB não está implementada!" )
+					EndIf
+
+				Else
+					AutoGrLog( "ERRO: Propriedade 'Tipo (XB_TIPO)' não informado para atualização do SXB." )
+				EndIf
+			Else
+				AutoGrLog( "ERRO: Propriedade 'Alias da Consulta (XB_ALIAS)' não informado para atualização do SXB." )
+			EndIf
+		// ========================================================
+		// Tratamento do SXB - FIM
+		// ========================================================	
+
+
+		// ========================================================
 		// Tratamento do SX7
 		// ========================================================	
 		Case (cAliSX == "SX7")
@@ -781,7 +852,7 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 					If ! Empty(::GetProperty(aUpdate, "X7_REGRA"))
 						If ! Empty(::GetProperty(aUpdate, "X7_CDOMIN"))
 
-							cChave:= ::GetProperty(aUpdate, "X7_CAMPO") + ::GetProperty(aUpdate, "X7_SEQUENC")
+							cChave:= Padr(::GetProperty(aUpdate, "X7_CAMPO"),Len(X7_CAMPO)) + ::GetProperty(aUpdate, "X7_SEQUENC")
 
 							lInclui:= ! DbSeek(cChave)
 							If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
@@ -1055,23 +1126,36 @@ METHOD AjustaSIX(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 	Local cDescEng:= ""
 	Local nX
 
+	dbSelectArea("SIX")
+	DbSetOrder(1)
+	If DbSeek(Left(cChave,3))
+		While !SIX->(Eof()) .And. AllTrim(SIX->INDICE) == AllTrim(Left(cChave,3))
+			If AllTrim(SIX->CHAVE) == Alltrim(cChvSIX)
+				AutoGrLog("ERRO: Índice " + cChave + " com chave duplicada na ordem " + SIX->ORDEM + "! Chave: " + AllTrim(cChvSIX))
+				Return(.F.)
+			EndIf
+			SIX->(dbSkip())
+		EndDo
+	EndIf
+
 	dbSelectArea("SX3")
 	DbSetOrder(2)
 
 	For nX:= 1 To Len(aCampos)
 		If DbSeek(AllTrim(aCampos[nX]))
-			If lDescri
-				cDescricao+= If(nX>1," + ","") + AllTrim(SX3->X3_TITULO)
-				cDescSpa+= If(nX>1," + ","") + SX3->X3_TITSPA
-				cDescEng+= If(nX>1," + ","") + SX3->X3_TITENG
+			If lDescri .And. ! ( AllTrim(aCampos[nX]) == (cAlias + "_FILIAL") )
+				cDescricao+= If( !Empty(cDescricao)," + ","") + AllTrim(SX3->X3_TITULO)
+				cDescSpa+= If( !Empty(cDescSpa)," + ","") + AllTrim(SX3->X3_TITSPA)
+				cDescEng+= If( !Empty(cDescEng)," + ","") + AllTrim(SX3->X3_TITENG)
 			EndIf
 		Else
-			AutoGrLog("ERRO: Índice " + cOrdem + ", Campo " + AllTrim(aCampos[nX]) + " não encontrado no SX3!")
+			AutoGrLog("ERRO: Índice " + cChave + ", Campo " + AllTrim(aCampos[nX]) + " não encontrado no SX3!")
 			Return (.F.)
 		EndIf
 	Next nX
 
 	If lInclui
+
 		::DefaultProp(aUpdate, "PROPRI", "U")
 
 		If lDescri
@@ -1114,6 +1198,7 @@ METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 	// ========================================================
 	If lInclui
 		::DefaultProp(aUpdate, "X3_ARQUIVO", cAlias)
+		::DefaultProp(aUpdate, "X3_TIPO", "C")
 		::DefaultProp(aUpdate, "X3_PROPRI", "U")
 		::DefaultProp(aUpdate, "X3_VISUAL", "A")
 		::DefaultProp(aUpdate, "X3_CONTEXT", "R")
@@ -1141,62 +1226,67 @@ METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 	cOrdem:= ::GetProperty(aUpdate, "X3_ORDEM")
 	aRecOrd:= {}
 
-	If Empty(cOrdem)
-		cOrdem:= "ZZ"
-	EndIf
+	// Se for alteração e não vier a ordem indicada, não mexer na ordem
+	If lInclui .Or. ! Empty(cOrdem)
 
-	If Len(cOrdem) == 2
-		nOrdem:= Val(RetAsc(cOrdem,3,.F.))
-	Else
-		nOrdem:= Val(cOrdem)
-	EndIf
-
-	cOrdem:= RetAsc(nOrdem,2,.T.)
-
-	DbSetOrder(1)
-	DbSeek(cAlias + cOrdem, .T.) 
-	
-	If cAlias != X3_ARQUIVO
-		dbSkip(-1)
-	EndIf
-
-	If cAlias == X3_ARQUIVO
-		nOrdX3Atu:= Val(RetAsc(SX3->X3_ORDEM,3,.F.))
-		If ( nOrdem > nOrdX3Atu )
-			nOrdem:= nOrdX3Atu + 1
-		ElseIf nOrdem == nOrdX3Atu
-			// Reordena os próximos SX3
-			SX3->(dbGoTop())
-			DbSeek(cAlias)
-			nOrdX3Atu:= 0
-			While !Eof() .And. X3_ARQUIVO == cAlias
-				If AllTrim(X3_CAMPO) != AllTrim(cChave)
-					nOrdX3Atu++
-					If nOrdX3Atu == nOrdem
-						nOrdX3Atu++
-					EndIf
-					aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
-				EndIf
-				dbSkip()
-			EndDo
+		If Empty(cOrdem)
+			cOrdem:= "ZZ"
 		EndIf
 
-		If nOrdem <= 0
+		If Len(cOrdem) == 2
+			nOrdem:= Val(RetAsc(cOrdem,3,.F.))
+		Else
+			nOrdem:= Val(cOrdem)
+		EndIf
+
+		cOrdem:= RetAsc(nOrdem,2,.T.)
+
+		DbSetOrder(1)
+		DbSeek(cAlias + cOrdem, .T.) 
+		
+		If cAlias != X3_ARQUIVO
+			dbSkip(-1)
+		EndIf
+
+		If cAlias == X3_ARQUIVO
+			nOrdX3Atu:= Val(RetAsc(SX3->X3_ORDEM,3,.F.))
+			If ( nOrdem > nOrdX3Atu )
+				nOrdem:= nOrdX3Atu + 1
+			ElseIf nOrdem == nOrdX3Atu
+				// Reordena os próximos SX3
+				SX3->(dbGoTop())
+				DbSeek(cAlias)
+				nOrdX3Atu:= 0
+				While !Eof() .And. X3_ARQUIVO == cAlias
+					If AllTrim(X3_CAMPO) != AllTrim(cChave)
+						nOrdX3Atu++
+						If nOrdX3Atu == nOrdem
+							nOrdX3Atu++
+						EndIf
+						aAdd(aRecOrd, { Recno(), RetAsc(nOrdX3Atu,2,.T.)})
+					EndIf
+					dbSkip()
+				EndDo
+			EndIf
+
+			If nOrdem <= 0
+				nOrdem:= 1
+			EndIf
+		Else
 			nOrdem:= 1
 		EndIf
-	Else
-		nOrdem:= 1
-	EndIf
 
-	aAdd(aUpdate, { "X3_ORDEM", RetAsc(nOrdem,2,.T.) })
+		aAdd(aUpdate, { "X3_ORDEM", RetAsc(nOrdem,2,.T.) })
 
-	If Len(aRecOrd) > 0
-		aAdd(aUpdate, { "UPDCUSTOM_X3REORDER", aRecOrd })
-	EndIf
+		If Len(aRecOrd) > 0
+			aAdd(aUpdate, { "UPDCUSTOM_X3REORDER", aRecOrd })
+		EndIf
 
-	DbSetOrder(2)
-	If nRecno != 0
-		dbGoTo(nRecno)
+		DbSetOrder(2)
+		If nRecno != 0
+			dbGoTo(nRecno)
+		EndIf
+
 	EndIf
 
 	// ========================================================
@@ -1224,7 +1314,7 @@ Return (Nil)
 METHOD AjustaSX2(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 	If lInclui
-		::DefaultProp(aUpdate, "X2_ARQUIVO", cEmpAnt + "0")
+		::DefaultProp(aUpdate, "X2_ARQUIVO", cAlias + cEmpAnt + "0")
 		
 		::DefaultProp(aUpdate, "X2_MODO", "C")
 		::DefaultProp(aUpdate, "X2_MODOUN", "C")
@@ -1267,5 +1357,302 @@ Return (Nil)
 // FIM da Função AjustaSX1
 //====================================================================================================================\\
 
+
+
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}AddSX1
+  ====================================================================================================================
+	@description
+	Adiciona um campo ao compatibilizador
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 28/12/2017
+
+/*/
+//===================================================================================================================\
+METHOD AddSX1( cGrupo, cOrdem, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
+	
+	Local aCampo:= {}
+	Local nX
+
+	Default lSoUpdate:= .T.
+
+	aAdd(aCampo, {"X1_GRUPO", cGrupo} )
+	aAdd(aCampo, {"X1_ORDEM", cOrdem} )
+
+	For nX:= 1 to Len(aPropriedades)
+		aAdd(aCampo, aPropriedades[nX])
+	Next
+
+	If lSoUpdate .And. aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOUPDATE' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', .T.})
+	EndIf
+
+	::AddProperty( "SX1", aCampo )	
+
+Return ( Nil )
+// FIM da Funcao AddSX1
+//======================================================================================================================
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}AddSX2
+  ====================================================================================================================
+	@description
+	Adiciona uma tabela ao compatibilizador
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 28/12/2017
+
+/*/
+//===================================================================================================================\
+METHOD AddSX2( cTabela, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
+	
+	Local aCampo:= {}
+	Local nX
+
+	Default lSoUpdate:= .T.
+
+	aAdd(aCampo, {"X2_CHAVE", cTabela} )
+
+	For nX:= 1 to Len(aPropriedades)
+		aAdd(aCampo, aPropriedades[nX])
+	Next
+
+	If lSoUpdate .And. aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOUPDATE' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', .T.})
+	EndIf
+
+	::AddProperty( "SX2", aCampo )	
+
+Return ( Nil )
+// FIM da Funcao AddSX2
+//======================================================================================================================
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}AddSX3
+  ====================================================================================================================
+	@description
+	Adiciona um campo ao compatibilizador
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 28/12/2017
+
+/*/
+//===================================================================================================================\
+METHOD AddSX3( cCampo, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
+	
+	Local aCampo:= {}
+	Local nX
+
+	Default lSoUpdate:= .T.
+
+	aAdd(aCampo, {"X3_CAMPO", cCampo} )
+
+	For nX:= 1 to Len(aPropriedades)
+		aAdd(aCampo, aPropriedades[nX])
+	Next
+
+	If lSoUpdate .And. aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOUPDATE' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', .T.})
+	EndIf
+
+	::AddProperty( "SX3", aCampo )	
+
+Return ( Nil )
+// FIM da Funcao AddSX3
+//======================================================================================================================
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}AddSIX
+  ====================================================================================================================
+	@description
+	Adiciona um campo ao compatibilizador
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 28/12/2017
+
+/*/
+//===================================================================================================================\
+METHOD AddSIX( cIndice, cOrdem, aPropriedades, lSoUpdate, lSoInclui ) CLASS UPDCUSTOM
+	
+	Local aCampo:= {}
+	Local nX
+
+	Default lSoUpdate:= .T.
+	Default lSoInclui:= .F.
+
+	aAdd(aCampo, {"INDICE", cIndice} )
+
+	If ! Empty(cOrdem)
+		aAdd(aCampo, {"ORDEM", cOrdem} )
+	EndIf
+
+	For nX:= 1 to Len(aPropriedades)
+		aAdd(aCampo, aPropriedades[nX])
+	Next
+
+	If aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOUPDATE' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', lSoUpdate})
+	EndIf
+
+	If aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOINCLUI' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOINCLUI', lSoInclui})
+	EndIf
+
+	::AddProperty( "SIX", aCampo )	
+
+Return ( Nil )
+// FIM da Funcao AddSIX
+//======================================================================================================================
+//======================================================================================================================
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}AddSXB
+  ====================================================================================================================
+	@description
+	Adiciona atualização de consulta padrão
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 23/01/2018
+
+/*/
+//===================================================================================================================\
+METHOD AddSXB( cAlias, cTipo, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
+	
+	Local aCampo:= {}
+	Local nX
+
+	Default lSoUpdate:= .T.
+
+	aAdd(aCampo, {"XB_ALIAS", cAlias} )
+	aAdd(aCampo, {"XB_TIPO", cTipo} )
+
+	For nX:= 1 to Len(aPropriedades)
+		aAdd(aCampo, aPropriedades[nX])
+	Next
+
+	If lSoUpdate .And. aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOUPDATE' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', .T.})
+	EndIf
+
+	If aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOINCLUI' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOINCLUI', .F.})
+	EndIf
+
+	::AddProperty( "SXB", aCampo )	
+
+Return ( Nil )
+// FIM da Funcao AddSXB
+//======================================================================================================================
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}AddSX6
+  ====================================================================================================================
+	@description
+	Adiciona atualização de Parâmetros
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 08/02/2018
+
+/*/
+//===================================================================================================================\
+METHOD AddSX6( cParam, cConteudo, cDescricao, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
+	
+	Local aCampo:= {}
+	Local nX
+
+	Default aPropriedades:= {}
+	Default lSoUpdate:= .T.
+
+	aAdd(aCampo, {"X6_VAR", cParam} )
+
+	If ! Empty(cConteudo)
+		aAdd(aCampo, {"X6_CONTEUD", cConteudo} )
+	EndIf
+
+	If ! Empty(cDescricao)
+		aAdd(aCampo, {"X6_DESCRIC", cDescricao} )
+	EndIf
+
+	For nX:= 1 to Len(aPropriedades)
+		aAdd(aCampo, aPropriedades[nX])
+	Next
+
+	If aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOUPDATE' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', lSoUpdate})
+	EndIf
+
+	::AddProperty( "SX6", aCampo )
+
+Return ( Nil )
+// FIM da Funcao AddSX6
+//======================================================================================================================
+
+
+
+//====================================================================================================================\
+/*/{Protheus.doc}AddSX7
+  ====================================================================================================================
+	@description
+	Adiciona atualização de Gatilhos
+
+	@author TSC681 Thiago Mota
+	@version 1.0
+	@since 23/01/2018
+
+/*/
+//===================================================================================================================\
+METHOD AddSX7( cCampo, cSeq, cDomin, cRegra, aPropriedades, lSoInclui, lSoUpdate ) CLASS UPDCUSTOM
+	
+	Local aCampo:= {}
+	Local nX
+
+	Default aPropriedades:= {}
+	Default lSoInclui:= .T.
+	Default lSoUpdate:= .F.
+
+	aAdd(aCampo, {"X7_CAMPO", cCampo} )
+	aAdd(aCampo, {"X7_SEQUENC", cSeq} )
+	aAdd(aCampo, {"X7_CDOMIN", cDomin} )
+	aAdd(aCampo, {"X7_REGRA", cRegra} )
+
+	For nX:= 1 to Len(aPropriedades)
+		aAdd(aCampo, aPropriedades[nX])
+	Next
+
+	If aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOUPDATE' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', lSoUpdate})
+	EndIf
+
+	If aScan(aCampo, {|x| x[1] == 'UPDCUSTOM_SOINCLUI' }) == 0
+		aAdd(aCampo, {'UPDCUSTOM_SOINCLUI', lSoInclui})
+	EndIf
+
+	::AddProperty( "SX7", aCampo )
+
+	::AddSX3(cCampo, { { "X3_TRIGGER", "S" } } ) 
+
+Return ( Nil )
+// FIM da Funcao AddSX7
+//======================================================================================================================
 
 
