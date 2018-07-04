@@ -21,7 +21,7 @@ Static cIdOper
 //===================================================================================================================\
 User Function MileImp(lInterface, aInfAdic, aLayout, aDados)
 	
-	Local xRet
+	Local xRet:= .F.
 	Local nLinIni:= aInfAdic[1] // Linha inicial
 	Local nLinAtu:= aInfAdic[2] // Linha Atual
 	Local cArqPrc:= aInfAdic[3] // Arquivo processado
