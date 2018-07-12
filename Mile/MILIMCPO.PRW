@@ -34,6 +34,8 @@ User Function MILIMCPO()
 	oCompat:AddSX3( "DA3_ZLGIMP", aModelo, .F. )
 	oCompat:AddSX3( "DA4_ZLGIMP", aModelo, .F. )
 
+	oCompat:AddSX3( "DA4_NUMCNH", {{ "X3_VLDUSER", "Vazio() .Or. U_CNHValid()" }}, .F. )
+
 	// Executa o compatibilizador
 	oCompat:RunUpdate( /*lAuto*/, /*aEmpresas*/, /*lShared*/!AlteraBanco )
 
