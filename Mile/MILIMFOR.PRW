@@ -47,6 +47,7 @@ User Function MILIMFOR( lInterface, aDados )
 		U_MILEDADO(@aDados, "A2_COD", cCodCli)
 		U_MILEDADO(@aDados, "A2_LOJA", cLojCli)
 
+		aDados:= FWVetByDic( aDados, "SA2", /*lItens*/, /*nCpoPos*/ )
 		MsExecAuto( {|x,y| MATA020(x,y) }, aDados, If(lIncCli, 3, 4) )
 
 		//Verifica se ouve algum erro

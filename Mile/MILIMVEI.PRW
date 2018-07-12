@@ -28,7 +28,7 @@ User Function MILIMVEI( lInterface, aDados )
 	Local cChassi
 	Local cChassiCon
 	Local lInclui
-	Local lConSinesp:= .F. // Habilita consulta Sinesp Cidadão
+	Local lConSinesp:= .T. // Habilita consulta Sinesp Cidadão
 
 	Private lMsErroAuto		:= .F.
 	Private lMsHelpAuto		:= .F.
@@ -99,6 +99,7 @@ User Function MILIMVEI( lInterface, aDados )
 		DA3->(DbSetOrder(1)) // DA3_FILIAL+DA3_COD
 		lInclui:= ! DA3->(DbSeek(xFilial("DA3") + cPlaca))
 
+		aDados:= FWVetByDic( aDados, "DA3", /*lItens*/, /*nCpoPos*/ )
 		MsExecAuto( {|x,y,z| OMSA060(x, y) }, aDados, If(lInclui, 3, 4) )
 
 		//Verifica se ouve algum erro

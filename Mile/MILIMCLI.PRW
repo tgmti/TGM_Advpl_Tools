@@ -47,6 +47,7 @@ User Function MILIMCLI( lInterface, aDados )
 		U_MILEDADO(@aDados, "A1_COD", cCodCli)
 		U_MILEDADO(@aDados, "A1_LOJA", cLojCli)
 
+		aDados:= FWVetByDic( aDados, "SA1", /*lItens*/, /*nCpoPos*/ )
 		MsExecAuto( {|x,y| MATA030(x,y) }, aDados, If(lIncCli, 3, 4) )
 
 		//Verifica se ouve algum erro
