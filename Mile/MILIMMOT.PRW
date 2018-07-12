@@ -20,9 +20,7 @@
 User Function MILIMMOT( lInterface, aDados )
 
 	Local lRet:= .F.
-	Local cCgcCli:= U_MILEDADO(aDados, "A2_CGC")
-	Local cCodMot
-	Local cLojCli
+	Local cCodMot //TODO: Definir como será gerado
 	Local lIncCli
 	Local cCpoLog
 	Local nX
@@ -30,28 +28,37 @@ User Function MILIMMOT( lInterface, aDados )
 	Private lMsErroAuto		:= .F.
 	Private lMsHelpAuto		:= .F.
 	Private lAutoErrNoFile	:= .T.
+	Private cObsLog			:= ""
 
-	If ! Empty(cCgcCli) .And. Cgc(AllTrim(cCgcCli),,.F.)
-		cCgcCli:= AllTrim(cCgcCli)
-		If Len(cCgcCli) == 11 // CPF
-			cCodCli:= Left(cCgcCli, 9)
-			cLojCli:= Right(cCgcCli, 2)
-		Else // CNPJ
-			cCodCli:= "0" + Left(cCgcCli, 8)
-			cLojCli:= SubStr(cCgcCli, 9,4)
+
+	If .T.
+
+		// ============================================
+		// Validação de CNH
+		// ============================================
+		//TODO: Avaliar se vai precisar aqui, pois já tem na validação do campo
+		cNumCNH:= U_MILEDADO(@aDados, "DA4_NUMCNH")
+
+		If ! U_CNHValid( cNumCNH )
+			U_MILEDADO(@aDados, "DA4_NUMCNH","")
+			cObsLog+= "CNH Invalido - Dígito verificador da CNH inválido"
 		EndIf
 
-		DA4->(DbSetOrder(1)) // DA4_FILIAL+DA4_COD
-		lIncCli:= ! DA4->(DbSeek(xFilial("DA4") + cCodMot))
 
-		U_MILEDADO(@aDados, "A2_COD", cCodCli)
-		U_MILEDADO(@aDados, "A2_LOJA", cLojCli)
+		// ============================================
+		// Alimenta o campo de log
+		// ============================================
+		If ! Empty(cObsLog)
+			cObsLog:= "Erros encontrados na importação do Logix: " + cObsLog
+			U_MILEDADO(@aDados, "DA4_ZLGIMP", cObsLog)
+		EndIf
 
-		MsExecAuto( {|x,y| MATA020(x,y) }, aDados, If(lIncCli, 3, 4) )
+		aDados:= FWVetByDic( aDados, "DA4", /*lItens*/, /*nCpoPos*/ )
+		MsExecAuto( {|x,y| OMSA040(x,y) }, aDados, If(lIncCli, 3, 4) )
 
 		//Verifica se ouve algum erro
 		If lMsErroAuto
-			cLog:= "Erro ao cadastrar/alterar o Fornecedor " + cCodCli + "-" + cLojCli + ": " + CRLF
+			cLog:= "Erro ao cadastrar/alterar o Motorista " + cCodMot + ": " + CRLF
 			aEval(GetAutoGrLog(), {|x| cDetalhe+= x + CRLF })
 			lRet:= .F.
 		EndIf
