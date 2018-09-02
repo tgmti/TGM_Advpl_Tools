@@ -22,7 +22,7 @@ Return (Nil)
 User Function TstTdsCli()
 	Local oTdsCli:= UTDSCli():New()
 
-	oTdsCli:cFileConf:= "c:\TOTVS\TDS\TDSCLI_Param.txt"
+	oTdsCli:cFileConf:= "C:\TOTVS\TDS\WorkSpaces\TDS_Workspace_Mars_11.2\TGM_Advpl_Tools\APLICA~1\TDSCLI_Param.txt"
 	oTdsCli:cPathTDS:= "c:\TOTVS\TDS\TotvsDeveloperStudio-11.3_ATUAL\"
 	oTdsCli:Exec("compile")
 

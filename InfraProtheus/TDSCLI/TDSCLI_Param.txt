@@ -2,13 +2,13 @@
 build          = 7.00.131227A
 command        = compile
 #did            = (null value)
-environment    = Environment
+environment    = comp
 #filterProgram  = (null value)
 includes       = C:/TOTVS/TOTVS12/Microsiga/protheus/include/
 serverType=AdvPL
 port           = 1234
 #program        =
-programlist    =C:/TOTVS/TDS/WorkSpaces/TDS_Workspace_Mars_11.2/TGM_Advpl_Tools/.vscode/Compilar.txt
+programlist    =C:/TOTVS/TDS/WorkSpaces/TDS_Workspace_Mars_11.2/TGM_Advpl_Tools/InfraProtheus/TDSCLI/Compilar.txt
 #properties     = C:\TOTVS\TDS\TDSCLI_Param.txt
 #psw=
 recompile      = t
