@@ -3,16 +3,16 @@
 User Function TSTValAr()
 
 	aArrTeste:= { "Posição 1", {"Posição 2,1", {"Posição 2,2,1", {"Posição 2,2,2,1" } } } }
-					
+
 	U_ValArray(aArrTeste, {2,2,2,1}, "Retorna a última posição", .F.)
-	
+
 	U_ValArray(aArrTeste, {1,1}, "Posição não  existe")
-	
-	U_ValArray(aArrTeste, {2,2}, "Retorna um Array", .T.)				
+
+	U_ValArray(aArrTeste, {2,2}, "Retorna um Array", .T.)
 
 Return
 
-/********************************************************************************************************** 
+/**********************************************************************************************************
  {Protheus.doc} ValArray
 
 	Descrição: Recuperar informação dentro de um Array, validando se existem as posições passadas
@@ -27,17 +27,17 @@ Return
 										Ou um número para identificação da posição em um vetor unidimensional
 @param		cPadrao		Padrão = Nil	Valor padrão caso não for possível encontrar o dado no array
 @param		lMudaTipo	Padrão = .F.	Define se muda o tipo de dados, caso seja diferente do tipo em cPadrao
-        
+
 @sample		U_ValArray(aArray, {4,5}, "TESTE")
-			Este exemplo irá buscar o valor contido em aArray[4,5], 
+			Este exemplo irá buscar o valor contido em aArray[4,5],
 			caso o array não possua esta dimensão, ou o tipo de dados seja diferente do padrão
 			será retornado o valor "TESTE"
 
 @obs		15/03/2013 TSC681 - Thiago Mota:
-			Facilitar a utiização da função em vetores com apenas uma dimensão, 
-			informando valores numéricos no parâmetro aNPos  
+			Facilitar a utiização da função em vetores com apenas uma dimensão,
+			informando valores numéricos no parâmetro aNPos
 			Validação do parâmetro aNPos modificada para aceitar também valores numéricos.
-			
+
 *********************************************************************************************************/
 
 User Function ValArray(aArray, aNPos, cPadrao, lMudaTipo)
@@ -53,7 +53,15 @@ User Function ValArray(aArray, aNPos, cPadrao, lMudaTipo)
 	Elseif ValType(aNPos)=="N"
 		nTam:= 1
 		aNPos:= { aNPos }
-	Else //TODO: Implementar Caractere 1,1,1
+	Elseif ValType(aNPos)=="C"
+		//Converte o caracter enviado "1,1,1" para array {"1","1","1"}
+		aNPos := StrTokArr2( aNPos, ",", .F. )
+		//Converte as posições caracteres em numericas-> {1,1,1}
+		For nCvt := 1 To Len( aNPos )
+			aNPos[ nCvt ] := Val( aNPos[ nCvt ] )
+		Next nCvt
+		nTam  := Len( aNPos )
+	Else
 		Return xRet
 	EndIf
 
