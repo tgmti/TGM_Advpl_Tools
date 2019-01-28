@@ -41,3 +41,35 @@ Rotina em MVC para poder liberar a consulta e edição de tabelas genéricas (SX5)
 [TINI.prw](./Funções%20Auxiliares/TINI.prw) - Inicializador padrão com poucos parâmetros, útil para quando o inicializador não cabe no X3.
 
 [TPOS.prw](./Funções%20Auxiliares/TPOS.prw) - Posicione com poucos parâmetros, útil para usar em inicializadores com poucos caracteres de espaço.
+
+## Leitura de XML
+
+[TGETMSG](./Leitura%20de%20XML/TGETMSG.prw) - Recebe uma Mensagem e uma lista de parâmetros e retorna os dados encontrados. Útil para buscar dados em Tags de observação/informações complementares.
+
+[TGETOXML](./Leitura%20de%20XML/TGETOXML.prw) - Abre um arquivo indicado e converte para XML.
+
+[XmlChild](./Leitura%20de%20XML/XmlChild.prw) - Facilitador para Leitura de Tag XML.
+
+## Logs
+
+[GravaLog](./Logs/GravaLog.prw) - Função para centralizar logs.
+
+## Mile
+
+[MileImp](./Mile/MileImp.prw) - Rotina para facilitar a criação de modelos customizados na importação do Mile
+
+## NF-e
+
+[GerXMLNFe](./NF-e/GerXMLNFe.prw) - Exporta o XML da NF-e (saída e entrada), CT-e ou MDF-e, usando as funções padrão de transmissão. Útil para validar e depurar a geração do XML sem precisar transmitir para a SEFAZ.
+
+## Usuarios no Banco de Dados
+
+[TUSUXBCO](./Usuarios%20Banco%20de%20Dados/TUSUXBCO.prw) - Copia o cadastro de usuário para uma tabela no banco de dados
+
+## ValidaCNH
+
+[ValidaCNH](./ValidaCNH/CNHValid.PRW) - Validação do número da CNH
+
+## WFWEBRelatorio
+
+[WFWEBRelatorio](./WFWebRelatorio/WFWEBRelatorio.prw) - Classe que extende TWFProcess com Funções úteis para geração de relatório gráfico utilizando HTML.
