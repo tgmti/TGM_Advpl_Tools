@@ -17,4 +17,4 @@ Exemplo:
     aModificado:= aMap(aOriginal, {|x| x*2 })
     // Resultado: {4,8,12,16}
 
-> Obs: Testes implementados com https://github.com/nginformatica/advpl-testsuite
+> Obs: Testes implementados com [advpl-testsuite](https://github.com/nginformatica/advpl-testsuite)
