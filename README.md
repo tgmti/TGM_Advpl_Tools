@@ -35,3 +35,4 @@ Rotina em MVC para poder liberar a consulta e edição de tabelas genéricas (SX5)
 [SHELLADVPL.prw](./Funções%20Auxiliares/SHELLADVPL.prw) - Tela auxiliar para avaliação de expressões no Protheus.
 [TINI.prw](./Funções%20Auxiliares/TINI.prw) - Inicializador padrão com poucos parâmetros, útil para quando o inicializador não cabe no X3.
 [TPOS.prw](./Funções%20Auxiliares/TPOS.prw) - Posicione com poucos parâmetros, útil para usar em inicializadores com poucos caracteres de espaço.
+[ValArray](./Arrays/ValArray.prw/) - Recuperar informação dentro de um Array, validando se existem as posições passadas.
