@@ -3,7 +3,7 @@
 // http://tdn.totvs.com/display/tec/WaitRun
 User Function ConPython()
 
-	Local cComando:= "python C:\Temp\Cootravale\ConsPlaca\consulta.py "
+	Local cComando:= "python C:\Temp\ConsPlaca\consulta.py "
 	Local cPlaca:= "AQB3165"
 	Local cArqPlaca:= "c:\Temp\placas\" + cPlaca + ".json"
 	Local cErro

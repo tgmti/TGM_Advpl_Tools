@@ -142,7 +142,7 @@ Return ( lRet )
 //===================================================================================================================\
 Static Function ConVeiSine( cPlaca )
 
-	Local cComando:= "python C:\Temp\Cootravale\ConsPlaca\consulta.py "
+	Local cComando:= "python C:\Temp\ConsPlaca\consulta.py "
 	Local cArqPlaca:= "c:\Temp\placas\" + cPlaca + ".json"
 	Local cErro
 	Local oJson
