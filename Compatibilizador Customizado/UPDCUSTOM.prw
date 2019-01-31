@@ -10,14 +10,17 @@
 	Classe utilizada para efetuar atualizações de dicionário customizadas
 	Definição da classe
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
 	@example
 	Local oCompat:= UPDCUSTOM():New("Compatibilizador Customizado")
 	Local aParam:= {}
-	
+
 	aAdd(aParam, {})
 	aAdd(aTail(aParam), {"X6_VAR", "MV_ZTEST"} )
 	aAdd(aTail(aParam), {"X6_DESCRIC", "Parametro de teste"} )
@@ -70,7 +73,10 @@ ENDCLASS
 	@description
 	Método que criador da classe
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 	@return		Objeto, Instância em da classe UPDCUSTOM
@@ -96,7 +102,10 @@ Return (SELF)
 	@description
 	Método destrutor da Classe
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 	@return		Nil, Nulo
@@ -119,7 +128,10 @@ Return (Nil)
 	@description
 	Adiciona uma propriedade a um arquivo para atualizar
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -134,7 +146,7 @@ Return (Nil)
 		"X2_TTS"    , "X2_ROTINA" , "X2_PYME"   , "X2_UNICO"  , "X2_DISPLAY", "X2_SYSOBJ" , "X2_USROBJ" , ;
 		"X2_POSLGT" , "X2_MODOEMP", "X2_MODOUN" , "X2_MODULO" }
 
-	SX3: 
+	SX3:
 
 /*/
 //====================================================================================================================\\
@@ -168,7 +180,10 @@ Return (Nil)
 	@description
 	Executa o compatibilizador
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 	@return		Objeto, Instância em da classe UPDCUSTOM
@@ -250,11 +265,14 @@ Return
   ====================================================================================================================
 	@description
 	Função de processamento da gravação dos arquivos
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 	@return		Objeto, Instância em da classe UPDCUSTOM
-	
+
 /*/
 //====================================================================================================================\\
 METHOD FSTProc( lEnd, aMarcadas, lAuto, lShared ) CLASS UPDCUSTOM
@@ -291,7 +309,7 @@ METHOD FSTProc( lEnd, aMarcadas, lAuto, lShared ) CLASS UPDCUSTOM
 
 		dbSelectArea( "SM0" )
 		dbGoTop()
-		
+
 		oProcess:IncRegua1("Lendo as Empresas que serão atualizadas")
 
 		oProcess:SetRegua2( Len(aMarcadas) )
@@ -471,7 +489,10 @@ Return (lRet)
 	@description
 	Função para gravação dos arquivos do dicionário
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -494,7 +515,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 	oProcess:SetRegua2( Len( aUpdates ) )
 
 	For nL := 1 To Len(aUpdates)
-	
+
 		oProcess:IncRegua2( "Atualizando arquivo " + cAliSX + " " + cValToChar(nL) + "/" + cValToChar(len(aUpdates)) + "..." )
 
 		lOk := .F.
@@ -511,7 +532,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 						lAtu := .F.
 
 						If lInclui .Or. (cAliSX)->(FieldGet(nPosField)) <> aUpdates[nL][nX][2]
-							
+
 							lAtu:= .T.
 							lOk:= .T.
 							(cAliSX)->(FieldPut(nPosField , aUpdates[nL][nX][2]))
@@ -559,7 +580,7 @@ METHOD FSAtuFile(cAliSX, aUpdates) CLASS UPDCUSTOM
 			// ========================================================
 
 		EndIf
-	
+
 	Next nL
 
 	AutoGrLog( CRLF + "Final da Atualização do arquivo " + cAliSX + CRLF + Replicate( "-", 70 ) + CRLF )
@@ -575,7 +596,10 @@ Return NIL
 	@description
 	Função para gravação dos arquivos do dicionário
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -590,7 +614,7 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 		// ========================================================
 		// Tratamento do SX1
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SX1")
 			dbSelectArea("SX1")
 			DbSetOrder(1)
@@ -623,12 +647,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SX1 - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		// ========================================================
 		// Tratamento do SX2
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SX2")
 			dbSelectArea("SX2")
 			DbSetOrder(1)
@@ -656,12 +680,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SX2 - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		// ========================================================
 		// Tratamento do SX3
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SX3")
 			dbSelectArea("SX3")
 			DbSetOrder(2)
@@ -693,12 +717,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SX3 - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		// ========================================================
 		// Tratamento do SIX
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SIX")
 			dbSelectArea("SIX")
 			DbSetOrder(1)
@@ -706,7 +730,7 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			::DefaultProp(aUpdate, "UPDCUSTOM_SOINCLUI", .T.) // Padrão do índice é só inclusão
 
 			If ! Empty(::GetProperty(aUpdate, "INDICE"))
-				
+
 				cChave:= cAlias:= ::GetProperty(aUpdate, "INDICE")
 
 				If Empty(::GetProperty(aUpdate, "ORDEM"))
@@ -729,11 +753,11 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 				EndIf
 
 				If ! Empty(::GetProperty(aUpdate, "ORDEM"))
-					
+
 					cChave+= ::GetProperty(aUpdate, "ORDEM")
 
 					If ! Empty(::GetProperty(aUpdate, "CHAVE"))
-					
+
 						lInclui:= ! DbSeek(cChave)
 						If lInclui .And. ::GetProperty(aUpdate, "UPDCUSTOM_SOUPDATE")
 							AutoGrLog( "ERRO: Índice " + cChave + " não existe no SIX." )
@@ -758,12 +782,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SIX - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		// ========================================================
 		// Tratamento do SX6
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SX6")
 			dbSelectArea("SX6")
 			DbSetOrder(1)
@@ -774,7 +798,7 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			cChave:= ::GetProperty(aUpdate, "X6_VAR")
 
 			If ! Empty(cChave)
-				
+
 				cChave:= ::GetProperty(aUpdate, "X6_FIL") + cChave
 
 				lInclui:= ! DbSeek(cChave)
@@ -794,12 +818,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SX6 - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		// ========================================================
 		// Tratamento do SXB
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SXB")
 			dbSelectArea("SXB")
 			DbSetOrder(1)
@@ -811,11 +835,11 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			cChave:= ::GetProperty(aUpdate, "XB_ALIAS")
 
 			If ! Empty(cChave)
-				
+
 				cChave:= Padr(cChave, Len(XB_ALIAS))
 
 				If ! Empty( ::GetProperty(aUpdate, "XB_TIPO") )
-					
+
 					cChave+= ::GetProperty(aUpdate, "XB_TIPO")
 					cChave+= ::GetProperty(aUpdate, "XB_SEQ")
 					cChave+= ::GetProperty(aUpdate, "XB_COLUNA")
@@ -834,12 +858,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SXB - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		// ========================================================
 		// Tratamento do SX7
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SX7")
 			dbSelectArea("SX7")
 			DbSetOrder(1)
@@ -883,12 +907,12 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SX6 - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		// ========================================================
 		// Tratamento do SX5
-		// ========================================================	
+		// ========================================================
 		Case (cAliSX == "SX5")
 			dbSelectArea("SX5")
 			DbSetOrder(1)
@@ -897,7 +921,7 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			::DefaultProp(aUpdate, "X5_FILIAL", Space(Len(SX5->X5_FILIAL)))
 
 			If ! Empty( ::GetProperty(aUpdate, "X5_TABELA") )
-				
+
 				If ! Empty( ::GetProperty(aUpdate, "X5_CHAVE") )
 					cChave:= ::GetProperty(aUpdate, "X5_FILIAL")
 					cChave+= ::GetProperty(aUpdate, "X5_TABELA")
@@ -930,7 +954,7 @@ METHOD FsPosicFile(cAliSX, aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 			EndIf
 		// ========================================================
 		// Tratamento do SX5 - FIM
-		// ========================================================	
+		// ========================================================
 
 
 		Otherwise
@@ -950,7 +974,10 @@ Return (lRet)
 	@description
 	Função para gravação dos arquivos do dicionário
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -989,7 +1016,10 @@ Return (xRet)
 	@description
 	Altera uma propriedade
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -1020,7 +1050,10 @@ Return (Nil)
 	@description
 	Adiciona um valor padrão para uma propriedade
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -1044,7 +1077,10 @@ Return (Nil)
 	@description
 	Ajustes para inclusão de campo no SX3
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -1109,7 +1145,10 @@ Return (Nil)
 	@description
 	Ajustes para inclusão de campo no SX3
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -1179,7 +1218,10 @@ Return (.T.)
 	@description
 	Ajustes para inclusão de campo no SX3
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -1214,7 +1256,7 @@ METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 		::DefaultProp(aUpdate, "X3_ORTOGRA", "N")
 		::DefaultProp(aUpdate, "X3_IDXFLD", "N")
 
-	EndIf	
+	EndIf
 	// ========================================================
 	// Ajustes para inclusão de campo SX3 - FIM
 	// ========================================================
@@ -1242,8 +1284,8 @@ METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 		cOrdem:= RetAsc(nOrdem,2,.T.)
 
 		DbSetOrder(1)
-		DbSeek(cAlias + cOrdem, .T.) 
-		
+		DbSeek(cAlias + cOrdem, .T.)
+
 		If cAlias != X3_ARQUIVO
 			dbSkip(-1)
 		EndIf
@@ -1291,7 +1333,7 @@ METHOD AjustaSX3(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 	// ========================================================
 	// Ajusta Ordem do campo - FIM
-	// ========================================================	
+	// ========================================================
 
 Return (Nil)
 // FIM da Função AjustaSX3
@@ -1305,7 +1347,10 @@ Return (Nil)
 	@description
 	Ajustes para inclusão de Tabela no SX2
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -1315,13 +1360,13 @@ METHOD AjustaSX2(aUpdate, cAlias, cChave, lInclui) CLASS UPDCUSTOM
 
 	If lInclui
 		::DefaultProp(aUpdate, "X2_ARQUIVO", cAlias + cEmpAnt + "0")
-		
+
 		::DefaultProp(aUpdate, "X2_MODO", "C")
 		::DefaultProp(aUpdate, "X2_MODOUN", "C")
 		::DefaultProp(aUpdate, "X2_MODOEMP", "C")
 
 		::DefaultProp(aUpdate, "X2_PYME", "S")
-		
+
 		::DefaultProp(aUpdate, "X2_NOME", "Tabela: " + ::GetProperty(aUpdate, "X2_CHAVE"))
 		::DefaultProp(aUpdate, "X2_NOMESPA", ::GetProperty(aUpdate, "X2_NOME"))
 		::DefaultProp(aUpdate, "X2_NOMEENG", ::GetProperty(aUpdate, "X2_NOME"))
@@ -1340,7 +1385,10 @@ Return (Nil)
 	@description
 	Ajustes para inclusão de Tabela no SX1
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -1368,14 +1416,14 @@ Return (Nil)
 	@description
 	Adiciona um campo ao compatibilizador
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
 	@version 1.0
 	@since 28/12/2017
 
 /*/
 //===================================================================================================================\
 METHOD AddSX1( cGrupo, cOrdem, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
-	
+
 	Local aCampo:= {}
 	Local nX
 
@@ -1392,7 +1440,7 @@ METHOD AddSX1( cGrupo, cOrdem, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
 		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', .T.})
 	EndIf
 
-	::AddProperty( "SX1", aCampo )	
+	::AddProperty( "SX1", aCampo )
 
 Return ( Nil )
 // FIM da Funcao AddSX1
@@ -1406,14 +1454,14 @@ Return ( Nil )
 	@description
 	Adiciona uma tabela ao compatibilizador
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
 	@version 1.0
 	@since 28/12/2017
 
 /*/
 //===================================================================================================================\
 METHOD AddSX2( cTabela, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
-	
+
 	Local aCampo:= {}
 	Local nX
 
@@ -1429,7 +1477,7 @@ METHOD AddSX2( cTabela, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
 		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', .T.})
 	EndIf
 
-	::AddProperty( "SX2", aCampo )	
+	::AddProperty( "SX2", aCampo )
 
 Return ( Nil )
 // FIM da Funcao AddSX2
@@ -1443,14 +1491,14 @@ Return ( Nil )
 	@description
 	Adiciona um campo ao compatibilizador
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
 	@version 1.0
 	@since 28/12/2017
 
 /*/
 //===================================================================================================================\
 METHOD AddSX3( cCampo, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
-	
+
 	Local aCampo:= {}
 	Local nX
 
@@ -1466,7 +1514,7 @@ METHOD AddSX3( cCampo, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
 		aAdd(aCampo, {'UPDCUSTOM_SOUPDATE', .T.})
 	EndIf
 
-	::AddProperty( "SX3", aCampo )	
+	::AddProperty( "SX3", aCampo )
 
 Return ( Nil )
 // FIM da Funcao AddSX3
@@ -1480,14 +1528,14 @@ Return ( Nil )
 	@description
 	Adiciona um campo ao compatibilizador
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
 	@version 1.0
 	@since 28/12/2017
 
 /*/
 //===================================================================================================================\
 METHOD AddSIX( cIndice, cOrdem, aPropriedades, lSoUpdate, lSoInclui ) CLASS UPDCUSTOM
-	
+
 	Local aCampo:= {}
 	Local nX
 
@@ -1512,7 +1560,7 @@ METHOD AddSIX( cIndice, cOrdem, aPropriedades, lSoUpdate, lSoInclui ) CLASS UPDC
 		aAdd(aCampo, {'UPDCUSTOM_SOINCLUI', lSoInclui})
 	EndIf
 
-	::AddProperty( "SIX", aCampo )	
+	::AddProperty( "SIX", aCampo )
 
 Return ( Nil )
 // FIM da Funcao AddSIX
@@ -1527,14 +1575,14 @@ Return ( Nil )
 	@description
 	Adiciona atualização de consulta padrão
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
 	@version 1.0
 	@since 23/01/2018
 
 /*/
 //===================================================================================================================\
 METHOD AddSXB( cAlias, cTipo, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
-	
+
 	Local aCampo:= {}
 	Local nX
 
@@ -1555,7 +1603,7 @@ METHOD AddSXB( cAlias, cTipo, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
 		aAdd(aCampo, {'UPDCUSTOM_SOINCLUI', .F.})
 	EndIf
 
-	::AddProperty( "SXB", aCampo )	
+	::AddProperty( "SXB", aCampo )
 
 Return ( Nil )
 // FIM da Funcao AddSXB
@@ -1569,14 +1617,14 @@ Return ( Nil )
 	@description
 	Adiciona atualização de Parâmetros
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
 	@version 1.0
 	@since 08/02/2018
 
 /*/
 //===================================================================================================================\
 METHOD AddSX6( cParam, cConteudo, cDescricao, aPropriedades, lSoUpdate ) CLASS UPDCUSTOM
-	
+
 	Local aCampo:= {}
 	Local nX
 
@@ -1615,14 +1663,14 @@ Return ( Nil )
 	@description
 	Adiciona atualização de Gatilhos
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
 	@version 1.0
 	@since 23/01/2018
 
 /*/
 //===================================================================================================================\
 METHOD AddSX7( cCampo, cSeq, cDomin, cRegra, aPropriedades, lSoInclui, lSoUpdate ) CLASS UPDCUSTOM
-	
+
 	Local aCampo:= {}
 	Local nX
 
@@ -1649,7 +1697,7 @@ METHOD AddSX7( cCampo, cSeq, cDomin, cRegra, aPropriedades, lSoInclui, lSoUpdate
 
 	::AddProperty( "SX7", aCampo )
 
-	::AddSX3(cCampo, { { "X3_TRIGGER", "S" } } ) 
+	::AddSX3(cCampo, { { "X3_TRIGGER", "S" } } )
 
 Return ( Nil )
 // FIM da Funcao AddSX7

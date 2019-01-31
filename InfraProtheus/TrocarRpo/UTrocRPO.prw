@@ -6,7 +6,10 @@
 	@description
 	Classe para Fazer a troca de RPO a quente
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 31/08/2018
 
@@ -37,7 +40,10 @@ EndClass
 	@description
 	Método Construtor da Classe
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 31/08/2018
 
@@ -56,14 +62,17 @@ Return ( Self )
 	@description
 	Método que executa a Troca
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 31/08/2018
 
 /*/
 //===================================================================================================================\
 Method Exec(cCommand) Class UTrocRPO
-	
+
 	Local lRet:= .F.
 	Local cSrcActual:= ""
 	Local cSeq

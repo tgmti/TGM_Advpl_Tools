@@ -7,7 +7,10 @@
 	@description
 	Função auxiliar para posicione
 
-	@author	TSC681 Thiago Mota <thiag.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		23 de set de 2016
 

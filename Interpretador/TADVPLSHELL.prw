@@ -6,7 +6,10 @@
 	@description
 	Interpretador ADVPL
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		17 de fev de 2017
 
@@ -46,7 +49,10 @@ Return ( Nil )
 	@description
 	Tela principal
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		17 de fev de 2017
 

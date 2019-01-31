@@ -7,7 +7,10 @@
 	@description
 	Classe que extende TWFProcess com Funções úteis para geração de relatório gráfico utilizando HTML
 
-	@author		TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		02/08/2013
 
@@ -38,7 +41,10 @@ Return ( SELF )
 	@description
 	Exibe o arquivo HTML gerado para o WF em uma página da WEB (Protheus Browser)
 
-	@author		TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		02/08/2013
 	@return		Nil, Padrão:  -
@@ -130,7 +136,10 @@ Return ( Nil )
 	@description
 	Método para envio do e-mail dentro do relatório
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		17/09/2014
 

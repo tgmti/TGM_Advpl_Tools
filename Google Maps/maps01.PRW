@@ -7,7 +7,6 @@
 || #                                                                     # ||
 || # Objetivo: Retorna a Latitude e Longitude conforme o endereço        # ||
 || #                                                                     # ||
-|| # Autor:    GUSTAVO H.      			                                 # ||
 || # Data:     22/06/2015                                                # ||
 || ####################################################################### ||
 \*=========================================================================*/
@@ -19,9 +18,7 @@ User Function maps01()
 	Local cLat			:= ""
 	Local cLong			:= ""
 
-	//cHtmlPage := Httpget("https://maps.googleapis.com/maps/api/geocode/xml?address=JOINVILLE,%20ANABURGO%206708%20,+SC&key=AIzaSyDdX7xGEu8lAQdgZwlrx1Mk0iJkhNnhuc0")
 	cHtmlPage := Httpget("https://maps.googleapis.com/maps/api/geocode/xml?address="+StrTran(Alltrim(SA1->A1_MUN)," ","%20")+","+StrTran(Alltrim(SA1->A1_END)," ","%20")+"+"+StrTran(Alltrim(SA1->A1_EST)," ","%20")+"&key=AIzaSyDdX7xGEu8lAQdgZwlrx1Mk0iJkhNnhuc0")
-	//TODO: RETIRAR BARRAS "/" DA URL, testar o endereço da Weg linhares
 	cAviso	:= ""
 	cErro	:= ""
 	oXml	:= XmlParser(cHtmlPage,"_",@cAviso,@cErro)

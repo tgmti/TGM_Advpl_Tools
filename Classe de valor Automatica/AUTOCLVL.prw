@@ -6,7 +6,10 @@
 	@description
 	Cadastrar/Atualizar Classes de valor conforme cadastro de cliente ou fornecedor
 
-	@author	TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		23/06/2014
 

@@ -3,19 +3,19 @@
 Function RotinaPrincipal() {
 
     Write-Host 'Verificando se é um diretório Git Válido'
-    cd C:\TOTVS\TDS\WorkSpaces\TDS_Workspace_Mars_11.2\Transjoi_Copia_Producao
+    cd C:\TOTVS\TDS\WorkSpaces\TDS_Workspace_Mars_11.2\ProjetoTeste
 
     $isGitDir = git status
 
     if ($isGitDir){
-    
+
         If (MudaBranch Desenvolvimento) {
             Write-Host 'Faz Stash do Branch Desenvolvimento, para nao perder alteracoes nao comitadas'
             git stash
 
             If (MudaBranch master){
                 Write-Host 'Juntar alterações do remote e fazer rebase de commits no repositório local'
-                #TODO: Garantir que reconstrua 
+                #TODO: Garantir que reconstrua
                 git pull origin master --rebase
 
                 # Gerar log com os últimos arquivos alterados:
@@ -29,7 +29,7 @@ Function RotinaPrincipal() {
         #git checkout Desenvolvimento
         #$Status = (git branch)
         #If ( $Status.Contains('* Desenvolvimento') ){
-        #    
+        #
         #} else {
         #    Write-Host ( 'Erro ao alterar o HEAD para o branch Desenvolvimento' + $Status )
         #}

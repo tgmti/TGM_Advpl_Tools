@@ -8,7 +8,10 @@
 	@description
 	Compatibilizador para criar Campos de log utilizados na importação de Clientes, Fornecedores, Motoristas e Veículos
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 04/07/2018
 
@@ -23,7 +26,7 @@ User Function MILIMCPO()
 	Local AlteraBanco:= .T.
 
 	Private oCompat:= UPDCUSTOM():New( "COMPATIBILIZADOR DICIONÁRIOS - CAMPOS DE LOG PARA IMPORTACAO MILE" )
-	
+
 	aAdd(aModelo, {"X3_TIPO", "M"} )
 	aAdd(aModelo, {"X3_VISUAL", "V"} )
 	aAdd(aModelo, {"X3_TITULO", "Log.Imp."} )

@@ -7,7 +7,10 @@
 	@description
 	Função auxiliar que retorna os dados de conexão com o DbAccess a partir do AppServer.ini
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		2 de ago de 2017
 
@@ -55,7 +58,10 @@ Return ( aDadosDba )
 	@description
 	Retorna a chave do aruqivo .ini, testando várias opções
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 28/02/2018
 

@@ -3,8 +3,11 @@
 # ========================================================================================
 #  Rotina para automatizar a troca de RPO´s em ambientes complexos
 # ========================================================================================
-# 
-# 	@author		TSC681 Thiago Mota
+#
+#	@author Thiago Mota
+#	@author <mota.thiago@totvs.com.br>
+#	@author <tgmspawn@gmail.com>
+#
 # 	@version	1.0
 # 	@since		02/08/2017
 #
@@ -15,11 +18,14 @@
 # ========================================================================================
 #  Configurações da rotina
 # ========================================================================================
-# 
-# 	@author		TSC681 Thiago Mota
+#
+#	@author Thiago Mota
+#	@author <mota.thiago@totvs.com.br>
+#	@author <tgmspawn@gmail.com>
+#
 # 	@version	1.0
 # 	@since		02/08/2017
-# 
+#
 # ========================================================================================
 function configParam() {
 
@@ -31,7 +37,7 @@ function configParam() {
 	###############################################
 	# Lista de servidores e arquivos a copiar
 	# Formato dos elementos do Array:
-	#@{ 	
+	#@{
 	#	'Environment'= [Ambiente que será atualizado];
 	#	'PathDestin' = [Caminho de destino onde será copiado o arquivo RPO];
 	#	'SourcePath' = [SourcePath que será informado no INI;
@@ -42,7 +48,7 @@ function configParam() {
 	###############################################
 	$Private:serverList=@()
 
-	$serverList+= @{ 
+	$serverList+= @{
 		'Environment'= 'environment';
 		'PathDestin' = '\\192.168.80.10\c$\' + $prdPath;
 		'SourcePath' = 'C:\' + $prdPath;
@@ -52,7 +58,7 @@ function configParam() {
         'Slave_Mask' = '00'
 	}
 
-	$serverList+= @{ 
+	$serverList+= @{
 		'Environment'= 'env_job';
 		'PathDestin' = '\\192.168.80.18\c$\' + $prdPath;
 		'SourcePath' = 'C:\' + $prdPath;
@@ -61,7 +67,7 @@ function configParam() {
 		'Slaves_Qtd' = 3;
         'Slave_Mask' = '00'
 	}
-	
+
 	return $serverList
 }
 # Fim das Configurações
@@ -72,14 +78,17 @@ function configParam() {
 # ========================================================================================
 #  Retorna o diretorio destino sequencial esperado para o arquivo
 # ========================================================================================
-# 
-# 	@author		TSC681 Thiago Mota
+#
+#	@author Thiago Mota
+#	@author <mota.thiago@totvs.com.br>
+#	@author <tgmspawn@gmail.com>
+#
 # 	@version	1.0
 # 	@since		02/08/2017
-# 
+#
 # ========================================================================================
 function GetSeqPath($Private:Dest_List) {
-	
+
 	$Private:dirSeq=''
 	$Private:data = (Get-Date).ToString('yyyyMMdd')
 	$Private:seqMax= [int]0
@@ -119,24 +128,27 @@ function GetSeqPath($Private:Dest_List) {
 # ========================================================================================
 #  Atualiza o valor de uma chave no arquivo Ini
 # ========================================================================================
-# 
-# 	@author		TSC681 Thiago Mota
+#
+#	@author Thiago Mota
+#	@author <mota.thiago@totvs.com.br>
+#	@author <tgmspawn@gmail.com>
+#
 # 	@version	1.0
 # 	@since		02/08/2017
-# 
+#
 # ========================================================================================
 function UpdateApo($Private:fileChange, $Private:sectionChange, $Private:keyChange, $Private:newValue) {
 
     $Private:sectionFound=$false
-    $Private:valueChanged=$false    
+    $Private:valueChanged=$false
     $Private:newLineList= @()
 
     foreach ($Private:lineAtu in Get-Content $fileChange) {
-        
+
         If (! $valueChanged ) {
-            if (! $sectionFound ) { 
+            if (! $sectionFound ) {
                 $sectionFound = ( $lineAtu.ToUpper() -match '\[' + $sectionChange.ToUpper() + '\]' )
-            } elseif ($lineAtu -match '\[') {    
+            } elseif ($lineAtu -match '\[') {
                 # Para loop com erro "Ambiente não encontrado no arquivo"
                 return $false
             }
@@ -155,7 +167,7 @@ function UpdateApo($Private:fileChange, $Private:sectionChange, $Private:keyChan
 		## TODO: TESTE
 		#$fileChange = 'c:\Temp\appserver_NOVO.ini'
         Set-Content $fileChange $newLineList
-		
+
 		##TODO: TESTE
 		#pause
         return $true
@@ -172,11 +184,14 @@ function UpdateApo($Private:fileChange, $Private:sectionChange, $Private:keyChan
 # ========================================================================================
 #  Rotina principal
 # ========================================================================================
-# 
-# 	@author		TSC681 Thiago Mota
+#
+#	@author Thiago Mota
+#	@author <mota.thiago@totvs.com.br>
+#	@author <tgmspawn@gmail.com>
+#
 # 	@version	1.0
 # 	@since		02/08/2017
-# 
+#
 # ========================================================================================
 function execRotin($Private:serverList) {
 
@@ -198,14 +213,14 @@ function execRotin($Private:serverList) {
 
 		}
 
-		
+
 		###############################################
 		# Copiar os arquivos para os diretórios destino
 		###############################################
 		foreach ($Private:desPath in ($serverList.'PathDestin')){
 
 			Robocopy.exe $origPath $desPath$datSeq $rpoFile /W:1 /R:1
-			
+
 			If ( ( Test-Path ( $desPath + $datSeq + $rpoFile ) ) ){
 				$copyOk=$True
 			} Else {
@@ -229,22 +244,22 @@ function execRotin($Private:serverList) {
 	# Executa  a atualização dos arquivos INI
 	###############################################
 	foreach ($Private:srvAtu in $serverList) {
-		
+
 		$Private:sourcePath = $srvAtu.'SourcePath' + $datSeq
 		$Private:masterIni = $srvAtu.'Master_Ini' + $iniFile
-		
+
 		# Atualiza o Master
 		if (! ( UpdateApo $masterIni $srvAtu.'Environment' 'SourcePath' $sourcePath ) ){
 			echo ('Erro ao atualizar o arquivo ' + $masterIni)
 			return $false
 		}
-		
-		
+
+
 		# Atualiza os Slaves
 		for($Private:slvAtu=1; $slvAtu -le $srvAtu.'Slaves_Qtd'; $slvAtu++){
-		
+
 			$Private:slvIni= $srvAtu.'Slaves_Ini' + $slvAtu.ToString( $srvAtu.'Slave_Mask' ) + "\" + $iniFile
-			
+
 			if ( ! ( UpdateApo $slvIni $srvAtu.'Environment' 'SourcePath' $sourcePath ) ){
 				echo ('Erro ao atualizar o arquivo ' + $slvIni)
 				return $false

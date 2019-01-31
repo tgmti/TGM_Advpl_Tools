@@ -6,7 +6,10 @@
 	@description
 	Retorna as clausulas Where corretas para filtro de várias filiais
 
-	@author		TSC681 - Thiago Goncalves Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		05/07/2013
 	@return		cWhereFil, Padrão: "" - Cláusula where com a comparacao de todas as tabelas e filiais

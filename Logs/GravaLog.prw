@@ -20,7 +20,10 @@
 	@description
 	Função customizada para gravação de logs
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		15/10/2015
 
@@ -50,7 +53,7 @@ User Function GravaLog(cLog, cProcesso, nNivLog, cArquivo, cDiretorio, lData, lC
 		ElseIf ! Empty(cArqLog) .And. ! Empty(cPrcLog) .And. ! Empty(cProcesso) .And. cProcesso != cPrcLog
 			cArqLog:= Nil
 		Endif
-		
+
 		If ! Empty(cProcesso)
 			cPrcLog:= cProcesso
 		Endif
@@ -129,7 +132,10 @@ Return (cLogF)
 	@description
 	Cria a estrutura de pastas passada
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		07/06/2016
 

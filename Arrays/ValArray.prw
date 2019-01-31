@@ -17,26 +17,29 @@ Return
 
 	Descrição: Recuperar informação dentro de um Array, validando se existem as posições passadas
 
-@author		TSC681 - Thiago Gonçalves Mota
-@version	1.0
-@since		14/02/2013
-@return		xRet	:=	cPadrao
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
 
-@param		aArray		Obrigatório		Array onde buscar o valor
-@param		aNPos		Obrigatório		Array com as posições onde o valor se encontra
-										Ou um número para identificação da posição em um vetor unidimensional
-@param		cPadrao		Padrão = Nil	Valor padrão caso não for possível encontrar o dado no array
-@param		lMudaTipo	Padrão = .F.	Define se muda o tipo de dados, caso seja diferente do tipo em cPadrao
+	@version	1.0
+	@since		14/02/2013
+	@return		xRet	:=	cPadrao
 
-@sample		U_ValArray(aArray, {4,5}, "TESTE")
-			Este exemplo irá buscar o valor contido em aArray[4,5],
-			caso o array não possua esta dimensão, ou o tipo de dados seja diferente do padrão
-			será retornado o valor "TESTE"
+	@param		aArray		Obrigatório		Array onde buscar o valor
+	@param		aNPos		Obrigatório		Array com as posições onde o valor se encontra
+											Ou um número para identificação da posição em um vetor unidimensional
+	@param		cPadrao		Padrão = Nil	Valor padrão caso não for possível encontrar o dado no array
+	@param		lMudaTipo	Padrão = .F.	Define se muda o tipo de dados, caso seja diferente do tipo em cPadrao
 
-@obs		15/03/2013 TSC681 - Thiago Mota:
-			Facilitar a utiização da função em vetores com apenas uma dimensão,
-			informando valores numéricos no parâmetro aNPos
-			Validação do parâmetro aNPos modificada para aceitar também valores numéricos.
+	@sample		U_ValArray(aArray, {4,5}, "TESTE")
+				Este exemplo irá buscar o valor contido em aArray[4,5],
+				caso o array não possua esta dimensão, ou o tipo de dados seja diferente do padrão
+				será retornado o valor "TESTE"
+
+	@obs		15/03/2013 - Thiago Mota:
+				Facilitar a utiização da função em vetores com apenas uma dimensão,
+				informando valores numéricos no parâmetro aNPos
+				Validação do parâmetro aNPos modificada para aceitar também valores numéricos.
 
 *********************************************************************************************************/
 

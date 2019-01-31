@@ -10,7 +10,10 @@
 	@description
 	Função para manipular tabelas Genéricas
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		30 de ago de 2017
 
@@ -59,7 +62,10 @@ Return ( Nil )
 	@description
 	Definição do Modelo de Dados
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		25 de ago de 2016
 
@@ -91,7 +97,10 @@ Return ( oModel )
 	@description
 	Definição do Modelo de Dados
 
-	@author	TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		28 de jul de 2016
 
@@ -125,7 +134,10 @@ Return ( oView )
 	@description
 	Informa a tabela que deve ser editada
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		30 de ago de 2017
 
@@ -166,7 +178,10 @@ Return ( cTabela )
 	@description
 	Definição das rotinas do Menu
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		30 de ago de 2017
 

@@ -15,7 +15,7 @@ Caso não informar a tabela na chamada da FUNÇÃO vai aparecer a opção de escolher
 User Function SX5Cadastro(cTabela)
 	Local   cPerg   := "SX5Cadastro"
 	Default cTabela := ""
-	
+
 	If Pergunta(cPerg) .AND. Empty(cTabela)
 		ShowTela(MV_PAR01)
 	Else
@@ -31,24 +31,24 @@ Static Function ShowTela(cTabela)
 	Private cCadastro := "Tabela Genérica - SX5"
 	Private bFiltraBrw:= { || FilBrowse(cAlias,@aIndexSX5,@cFiltra) }
 	Private aRotina   := {}
-		
+
 	AADD(aRotina, { "Pesquisar"  , "AxPesqui" , 0, 1 })
 	AADD(aRotina, { "Visualizar" , "AxVisual" , 0, 2 })
 	AADD(aRotina, { "Incluir"    , "AxInclui" , 0, 3 })
 	AADD(aRotina, { "Alterar"    , "AxAltera" , 0, 4 })
 	AADD(aRotina, { "Excluir"    , "AxDeleta" , 0, 5 })
-	
+
 	Eval(bFiltraBrw)
 	dbSelectArea(cAlias)
 	dbGoTop()
 	mBrowse(6,1,22,75,cAlias)
-EndFilBrw(cAlias,aIndexSX5)
+	EndFilBrw(cAlias,aIndexSX5)
 Return
 
 Static Function Pergunta(cPerg)
 	Local   aPergs := {}
 	Default cPerg  := FunName()
-	
+
 	AADD(aPergs,{1,"Tabela",CRIAVAR("X5_TABELA"),"@!",'.T.',,'.T.',30,.F.})//MV_PAR01
-	
+
 Return ParamBox(aPergs,"Parâmetros",{},,,,,,,cPerg,.T.,.T.)

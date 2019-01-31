@@ -6,7 +6,10 @@
 	@description
 	Função que cria um arquivo XML para teste da rotina NfeSefaz
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	2.0
 	@since		15/02/2013
 	@return	Nil
@@ -57,7 +60,10 @@ Return ( Nil )
 	@description
 	Seleciona o tipo e o Diretório para Exportação
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		3 de out de 2017
 
@@ -114,7 +120,10 @@ Return ( Nil )
 	@description
 	Filtros específicos por tipo de exportação
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		4 de out de 2017
 
@@ -176,7 +185,10 @@ Return ( Nil )
 	@description
 	Exportação de XML
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		4 de out de 2017
 

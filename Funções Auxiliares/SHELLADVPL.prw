@@ -6,7 +6,10 @@
 	@description
 	Tela auxiliar para avaliação de expressões no Protheus
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		2 de mar de 2017
 	@return	xRet, Padrão: Nulo

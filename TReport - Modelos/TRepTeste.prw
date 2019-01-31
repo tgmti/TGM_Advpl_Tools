@@ -7,7 +7,10 @@
 	Relatório TRepTeste - Teste de TReport
 	Teste de TReport
 
-	@author		TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		25/10/2013
 	@return		Nil			, Nil				, Não se aplica
@@ -55,7 +58,10 @@ Return ( Nil )
 	Relatório TRepTeste - Teste de TReport
 	A funcao estatica ReportDef devera ser criada para todos os relatorios que poderao ser agendados pelo usuario.
 
-	@author		TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		25/10/2013
 	@return		oReport		, Objeto		, Objeto da Classe TReport com as definições de impressão
@@ -119,7 +125,10 @@ Return (oReport)
 	Relatório TRepTeste - Teste de TReport
 	Função responsável pela execução do relatório
 
-	@author		TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		25/10/2013
 	@return		Nil			, Nil				, Não se aplica
@@ -173,7 +182,10 @@ Return ( Nil )
 	Relatório TRepTeste - Teste de TReport
 	Função que ajusta o grupo de perguntas utilizado nos filtros do relatório
 
-	@author		TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		25/10/2013
 	@return		nCount		, Numérico		, Quantidade de registros na Query
@@ -210,7 +222,10 @@ Return ( nCount )
 	Relatório TRepTeste - Teste de TReport
 	Função que ajusta o grupo de perguntas utilizado nos filtros do relatório
 
-	@author		TSC681 - Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		25/10/2013
 	@return		Nil			, Nil				, Não se aplica

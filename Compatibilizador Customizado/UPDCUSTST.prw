@@ -7,7 +7,10 @@
 	@description
 	Rotina para teste do compatibilizador customizado
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		01/12/2016
 
@@ -20,7 +23,7 @@ User Function UPDCUSTST
 	Local aCpo2:= {}
 	Local aPar1:= {}
 	Local aTabGen:= {}
-	
+
 	// TESTE DE CAMPOS
 	aAdd(aCpo1, {"X3_CAMPO", "C5_ZTST001"} )
 	aAdd(aCpo1, {"X3_ORDEM", "13"} )
@@ -52,16 +55,16 @@ User Function UPDCUSTST
 	aAdd(aTail(aTabGen), {"X5_TABELA", "00"} )
 	aAdd(aTail(aTabGen), {"X5_CHAVE", "ZA"} )
 	aAdd(aTail(aTabGen), {"X5_DESCRI", "TABELA GENERICA - TESTE COMPATIBILIZADOR"} )
-	
+
 	aAdd(aTabGen, {})
 	aAdd(aTail(aTabGen), {"X5_TABELA", "ZA"} )
 	aAdd(aTail(aTabGen), {"X5_CHAVE", "001"} )
 	aAdd(aTail(aTabGen), {"X5_DESCRI", "Teste Tabela generica 1"} )
-	
+
 	aAdd(aTabGen, {})
 	aAdd(aTail(aTabGen), {"X5_TABELA", "ZA"} )
 	aAdd(aTail(aTabGen), {"X5_CHAVE", "002"} )
-	aAdd(aTail(aTabGen), {"X5_DESCRI", "Teste Tabela generica 2"} )	
+	aAdd(aTail(aTabGen), {"X5_DESCRI", "Teste Tabela generica 2"} )
 
 
 	// Adiciona Tabelas Genéricas no compatibilizador

@@ -6,7 +6,10 @@
 	@description
 	Rotina para teste da rotina da validação da CNF
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 27/06/2018
 
@@ -41,14 +44,17 @@ Return ( Nil )
 	@description
 	Retorna uma lista de CNH´s já avaliadas, a segunda posição no Array indica se é valida ou não
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 27/06/2018
 
 /*/
 //===================================================================================================================\
 Static Function ListaCNH()
-	
+
 	Local aLista:= { { "03238914446", .T. } , ;
 		{ "04114885760", .T. } , ;
 		{ "04749572303", .T. } , ;
@@ -201,7 +207,7 @@ Static Function ListaCNH()
 		{ "3064342317", .T. } , ;
 		{ "2357682721", .T. } , ;
 		{ "2145623091", .T. } , ;
-		{ "2062803896", .T. }  }	
+		{ "2062803896", .T. }  }
 
 Return ( aLista )
 // FIM da Funcao ListaCNH

@@ -10,7 +10,10 @@
 	@description
 	Consulta dos borderôs na SEA
 
-	@author	TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		1 de nov de 2016
 
@@ -44,7 +47,10 @@ Return ( Nil )
 	@description
 	Definição do modelo de dados
 
-	@author	TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		1 de nov de 2016
 
@@ -96,7 +102,10 @@ Return ( oModel )
 	@description
 	Definição da view
 
-	@author	TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		1 de nov de 2016
 
@@ -140,7 +149,10 @@ Return ( oView )
 	@description
 	Filtra os campos da estrurura
 
-	@author	TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		1 de nov de 2016
 
@@ -183,7 +195,10 @@ Return ( lCampo )
 	@description
 	Definição das rotinas do Menu
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		1 de nov de 2016
 
@@ -207,7 +222,10 @@ Return ( aRotina )
 	@description
 	Exibir a Legenda da Tela
 
-	@author	TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		29 de jul de 2016
 
@@ -227,7 +245,10 @@ Return(Nil)
 	@description
 	Update para utilizar a tela de consulta do Borderô
 
-	@author	TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		1 de nov de 2016
 

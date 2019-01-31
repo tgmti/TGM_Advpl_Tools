@@ -8,7 +8,10 @@
 	@description
 	Importação de cadastro de Veículos via Mile
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 02/07/2018
 
@@ -128,7 +131,10 @@ Return ( lRet )
 	@description
 	Consulta veículo no Sinesp
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 03/07/2018
 
@@ -165,14 +171,17 @@ Return ( Nil )
 	@description
 	Retorna a marca e o modelo a partir do resultado da consulta Sinesp
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 04/07/2018
 
 /*/
 //===================================================================================================================\
 Static Function GetMarcModel( cConsulta, cCodMarca, cDesModel )
-	
+
 	Local cMarca
 
 	If ! Empty(cConsulta)

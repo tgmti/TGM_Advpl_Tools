@@ -6,7 +6,10 @@
 	@description
 	Classe para executar compilação e aplicação de patches via TDSCli
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 31/08/2018
 
@@ -55,14 +58,17 @@ EndClass
 	@description
 	Método Construtor da Classe
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 31/08/2018
 
 /*/
 //===================================================================================================================\
 Method New() Class UTDSCli
-	
+
 	::cTdsCliBat:= "TDSCLI.bat"
 	::cServerType:= "Advpl"
 
@@ -77,14 +83,17 @@ Return ( Self )
 	@description
 	Método que executa o TDSCli
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 31/08/2018
 
 /*/
 //===================================================================================================================\
 Method Exec(cCommand) Class UTDSCli
-	
+
 	Local lRet:= .F.
 	Local cCmdExec:= ""
 	Local lWaitRun:= .T.

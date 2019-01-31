@@ -13,7 +13,10 @@
 	@description
 	Criação de arquivo de perguntas
 
-	@author	TSC681 Thiago Mota <thiago.mota@totvs.com.br>
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		1 de ago de 2017
 

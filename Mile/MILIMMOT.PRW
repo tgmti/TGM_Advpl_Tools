@@ -8,7 +8,10 @@
 	@description
 	Importação de cadastro de Motoristas via Mile
 
-	@author TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version 1.0
 	@since 04/07/2018
 
