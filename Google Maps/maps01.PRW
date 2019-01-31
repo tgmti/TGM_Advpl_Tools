@@ -17,8 +17,9 @@ User Function maps01()
 	Local cStatus		:= ""
 	Local cLat			:= ""
 	Local cLong			:= ""
+	Local API_KEY		:= ""
 
-	cHtmlPage := Httpget("https://maps.googleapis.com/maps/api/geocode/xml?address="+StrTran(Alltrim(SA1->A1_MUN)," ","%20")+","+StrTran(Alltrim(SA1->A1_END)," ","%20")+"+"+StrTran(Alltrim(SA1->A1_EST)," ","%20")+"&key=AIzaSyDdX7xGEu8lAQdgZwlrx1Mk0iJkhNnhuc0")
+	cHtmlPage := Httpget("https://maps.googleapis.com/maps/api/geocode/xml?address="+StrTran(Alltrim(SA1->A1_MUN)," ","%20")+","+StrTran(Alltrim(SA1->A1_END)," ","%20")+"+"+StrTran(Alltrim(SA1->A1_EST)," ","%20")+"&key="+API_KEY)
 	cAviso	:= ""
 	cErro	:= ""
 	oXml	:= XmlParser(cHtmlPage,"_",@cAviso,@cErro)
