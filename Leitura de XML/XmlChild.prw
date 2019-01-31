@@ -7,7 +7,10 @@
 	@description
 	Leitura de uma Tag XML
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		28/02/2015
 

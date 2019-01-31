@@ -6,7 +6,10 @@
 	@description
 	Abre um arquivo indicado e converte para XML
 
-	@author		TSC681 Thiago Mota
+	@author Thiago Mota
+	@author <mota.thiago@totvs.com.br>
+	@author <tgmspawn@gmail.com>
+
 	@version	1.0
 	@since		06/04/2016
 	@return		oXml, Padrão: := Nil - Conteúdo do arquivo Convertido para XML
@@ -17,23 +20,22 @@
 
 	@obs
 	Áreas utilizadas: Areas
-	obs_description
 
-	@sample	U_TGETOXML(cArq, oXml, cLog)
+	@sample	U_TGETOXML(cArq, oXml, cLog, cFileXml)
 
 /*/
 //===================================================================================================================\\
-User Function TGETOXML(cArq, oXml, cLog)
+User Function TGETOXML(cArq, oXml, cLog, cFileXml)
 
 	Local lRet		:= .F.
 	Local clError   := ""
 	Local clWarning := ""
 	Local nHdl
 	Local nBuffer
-	Local cFileXml
 
 	Default cArq	:= ""
 	Default cLog	:= ""
+	Default cFileXml:= ""
 	oXml:= Nil
 
 	If File(cArq)
