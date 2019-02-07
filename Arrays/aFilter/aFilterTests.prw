@@ -4,6 +4,7 @@
 TestSuite aFilterTests Description 'Testes da função aFilter' Verbose
     Feature VetorSimples Description 'Filtros Basicos'
     Feature UtizaPosicao Description 'Converte os dados do vetor, utilizando os parametros posicao e original'
+    Feature Desempenho Description 'Teste de desempenho'
 EndTestSuite
 
 Feature VetorSimples TestSuite aFilterTests
@@ -43,6 +44,46 @@ Feature UtizaPosicao TestSuite aFilterTests
     ::Expect( aFil1[3] ):ToBe( 6 )
     
 Return
+
+
+Feature Desempenho TestSuite aFilterTests
+
+	Local oLogger := Logger():New( 'aFilterTests' )
+	Local aVetor1 := Array(30000)
+	Local nEsperado:= 0.5
+	Local nSec
+	Local nSec2
+	Local nX
+	Local bFilter:= {|x,y| cValor:= "ABC", iif(y <= 10000, x == cValor, .F.) }
+
+	Afill(aVetor1, "ABC")
+	
+	// Verifica o filtro montando um novo Array com a metade do tamanho
+	nSec:= Seconds()
+	aNovo:= U_aFilter(aVetor1, bFilter)
+	nSec:= Seconds() - nSec
+
+	nSec2:= Seconds()
+	aNovo2:= {}
+	For nX:= 1 To Len(aVetor1)
+		cValor:= "ABC"
+		If nX <= 10000
+			If aVetor1[nX] == cValor
+				aAdd(aNovo2, aVetor1[nX])
+			EndIf
+		EndIf
+	Next nX
+	nSec2:= Seconds() - nSec2
+
+	oLogger:Info( '[DESEMPENHO] {1} itens, Esperado: Menos de {2} segundos', { Len(aVetor1), nEsperado } )
+
+
+	oLogger:Info( '[DESEMPENHO] Calculado {1} segundos', { nSec } )
+	oLogger:Info( '[DESEMPENHO com For] Calculado {1} segundos', { nSec2 } )
+
+    ::Expect( nSec <= nEsperado ):ToBe( .T. )
+    ::Expect( nSec < nSec2 ):ToBe( .T. ) // Deve ser mais rápido que com For Simples
+    ::Expect( Len(aNovo) ):ToBe( 10000 )
 
 
 Return
