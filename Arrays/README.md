@@ -27,3 +27,17 @@ Exemplo:
     // Resultado: 20
 
 > Obs: Testes implementados com [advpl-testsuite](https://github.com/nginformatica/advpl-testsuite)
+
+## aFind
+
+Retorna um elemento do array encontrado com aScan.
+
+    // Pode ser utilizado para facilitar a leitura de trechos assim:
+    aItens:= {"XPTO"}
+
+    xItem:= aItens[aScan(aItens, {|x| x[1] == "XPTO" })][1] // XPTO
+
+    xItem:= aFind(aItens, {|x| x[1] == "XPTO" })[1] // XPTO
+
+    E usando o Default, evitar erros
+    xItem:= aFind(aItens, {|x| x[1] == "XPTY" }, {"ARRAY PADRAO"})[1] // ARRAY PADRAO
