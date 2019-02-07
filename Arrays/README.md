@@ -1,4 +1,4 @@
-# ArrayUtils - Manipulação de Array
+# ArrayUtils - Manipulação de Arrays em ADVPL
 
 ## aFilter
 
@@ -7,6 +7,30 @@ Inpirado no Array.filter do Javascript, permite retornar uma cópia do array orig
 Exemplo:
     Local aFil1:= U_aFilter( { 12, 5, 8, 130, 44 }, {|x| x > 10 } )
     // Resultado: {12,130,44}
+
+
+## aFind
+
+Retorna um elemento do array encontrado com aScan.
+
+    // Pode ser utilizado para facilitar a leitura de trechos assim:
+    aItens:= {"XPTO"}
+
+    xItem:= aItens[aScan(aItens, {|x| x[1] == "XPTO" })][1] // XPTO
+
+    xItem:= aFind(aItens, {|x| x[1] == "XPTO" })[1] // XPTO
+
+    E usando o Default, evitar erros
+    xItem:= aFind(aItens, {|x| x[1] == "XPTY" }, {"ARRAY PADRAO"})[1] // ARRAY PADRAO
+
+
+## aJoin
+
+Inpirado no Array.join() do Javascript, o método join() junta todos os elementos de uma array em uma string.
+
+Exemplo:
+    aVetor:= {2,"Teste",.T.,dDatabase}
+    U_aJoin( aVetor, ";" ) // "2;Teste;.T.,29/01/2019"
 
 ## aMap
 
@@ -26,18 +50,5 @@ Exemplo:
     nTotal:= aReduce(aOriginal, {|x,y| x+y })
     // Resultado: 20
 
+
 > Obs: Testes implementados com [advpl-testsuite](https://github.com/nginformatica/advpl-testsuite)
-
-## aFind
-
-Retorna um elemento do array encontrado com aScan.
-
-    // Pode ser utilizado para facilitar a leitura de trechos assim:
-    aItens:= {"XPTO"}
-
-    xItem:= aItens[aScan(aItens, {|x| x[1] == "XPTO" })][1] // XPTO
-
-    xItem:= aFind(aItens, {|x| x[1] == "XPTO" })[1] // XPTO
-
-    E usando o Default, evitar erros
-    xItem:= aFind(aItens, {|x| x[1] == "XPTY" }, {"ARRAY PADRAO"})[1] // ARRAY PADRAO
