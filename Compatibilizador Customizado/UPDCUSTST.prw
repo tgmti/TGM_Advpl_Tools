@@ -25,11 +25,9 @@ User Function UPDCUSTST
 	Local aTabGen:= {}
 
 	// TESTE DE CAMPOS
-	aAdd(aCpo1, {"X3_CAMPO", "C5_ZTST001"} )
 	aAdd(aCpo1, {"X3_ORDEM", "13"} )
 	aAdd(aCpo1, {"X3_TAMANHO", 2} )
 
-	aAdd(aCpo2, {"X3_CAMPO", "C5_ZTST002"} )
 	aAdd(aCpo2, {"X3_ORDEM", "128"} )
 	aAdd(aCpo2, {"X3_TIPO", "C"} )
 	aAdd(aCpo2, {"X3_TAMANHO", 2} )
@@ -37,17 +35,16 @@ User Function UPDCUSTST
 	aAdd(aCpo2, {"X3_DESCRIC", "Teste compatibilizador 2"} )
 
 	// Adiciona propriedades
-	oCompat:AddProperty("SX3", aCpo1)
-	oCompat:AddProperty("SX3", aCpo2)
+	oCompat:AddSX3( "C5_NUM", {{ "X3_ORDEM", "12" }}, .T. )
+	oCompat:AddSX3( "C5_ZTST001", aCpo1, .F. )
+	oCompat:AddSX3( "C5_ZTST002", aCpo2, .F. )
 
 	// TESTE DE CAMPOS - FIM
 
 	// TESTE DE PARAMETROS
-	aAdd(aPar1, {"X6_VAR", "MV_ZTSTCMP"})
-	aAdd(aPar1, {"X6_DESCRIC", "Teste de Parametro inserido por compatibilizador customizado. " + Repl("-",50) + Repl("#",50)})
-	aAdd(aPar1, {"X6_CONTEUD", "ABC"})
 
-	oCompat:AddProperty("SX6", aPar1)
+	// AddSX6( cParam, cConteudo, cDescricao, aPropriedades, lSoUpdate )
+	AddSX6( "MV_ZTSTCMP", "ABC", "Teste de Parametro inserido por compatibilizador customizado. " + Repl("-",50) + Repl("#",50) )
 	// TESTE DE PARAMETROS - FIM
 
 	// TESTE DE TABELA GENERICA
