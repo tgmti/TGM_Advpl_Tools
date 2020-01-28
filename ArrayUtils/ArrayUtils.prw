@@ -13,6 +13,7 @@
     https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array/filtro
 
     @author Thiago Mota
+    @author tgmspawn@gmail.com
     @author mota.thiago@totvs.com.br
     @author https://github.com/tgmti/
 
@@ -55,6 +56,7 @@ Return ( aDestiny )
     Retorna um elemento do array encontrado com aScan
 
     @author Thiago Mota
+    @author tgmspawn@gmail.com
     @author mota.thiago@totvs.com.br
     @author https://github.com/tgmti/
 
@@ -113,6 +115,7 @@ Return ( uRet )
     https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array/join
 
     @author Thiago Mota
+    @author tgmspawn@gmail.com
     @author mota.thiago@totvs.com.br
     @author https://github.com/tgmti/
 
@@ -162,6 +165,7 @@ Return ( cRet )
     https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array/map
 
     @author Thiago Mota
+    @author tgmspawn@gmail.com
     @author mota.thiago@totvs.com.br
     @author https://github.com/tgmti/
 
@@ -178,6 +182,7 @@ Return ( cRet )
         1 - uValue, Qualquer, O elemento que está sendo processado no array.
         2 - nIndex, Número, O índice do elemento atual que está sendo processado no array.
         3 - aOrigin, Array, O array para qual map foi chamada.
+        4 - aDestiny, Array   , O novo array que será retornado.
 
 /*/
 //============================================================================\
@@ -185,11 +190,11 @@ User Function aMap( aOrigin, bCallback )
 Return aMap(aOrigin, bCallback)
 
 Static Function aMap( aOrigin, bCallback )
-    Local aDestino:= {}
+    Local aDestiny:= {}
 
-    aEval(aOrigin, {|uValue,nIndex| aAdd(aDestino, Eval(bCallback, uValue, nIndex, aOrigin)) })
+    aEval(aOrigin, {|uValue,nIndex| aAdd(aDestiny, Eval(bCallback, uValue, nIndex, aOrigin, aDestiny)) })
 
-Return ( aDestino )
+Return ( aDestiny )
 // FIM da Funcao aMap
 //==============================================================================
 
@@ -207,6 +212,7 @@ Return ( aDestino )
     https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce
 
     @author Thiago Mota
+    @author tgmspawn@gmail.com
     @author mota.thiago@totvs.com.br
     @author https://github.com/tgmti/
 
