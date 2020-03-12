@@ -1,8 +1,8 @@
-# ArrayUtils - Manipulação de Arrays em ADVPL
+# ArrayUtils - ManipulaÃ§Ã£o de Arrays em ADVPL
 
 ## aFilter
 
-Inpirado no Array.filter do Javascript, permite retornar uma cópia do array original, filtrando apenas os elementos que passarem em um teste.
+Inpirado no Array.filter do Javascript, permite retornar uma cÃ³pia do array original, filtrando apenas os elementos que passarem em um teste.
 
 Exemplo:
     Local aFil1:= U_aFilter( { 12, 5, 8, 130, 44 }, {|x| x > 10 } )
@@ -26,7 +26,7 @@ Retorna um elemento do array encontrado com aScan.
 
 ## aJoin
 
-Inpirado no Array.join() do Javascript, o método join() junta todos os elementos de uma array em uma string.
+Inpirado no Array.join() do Javascript, o mÃ©todo join() junta todos os elementos de uma array em uma string.
 
 Exemplo:
     aVetor:= {2,"Teste",.T.,dDatabase}
@@ -34,7 +34,7 @@ Exemplo:
 
 ## aMap
 
-Inpirado no Array.map do Javascript, permite retornar uma cópia do array original, porém com as posições modificadas conforme necessidade do desenvolvedor.
+Inpirado no Array.map do Javascript, permite retornar uma cÃ³pia do array original, porÃ©m com as posiÃ§Ãµes modificadas conforme necessidade do desenvolvedor.
 
 Exemplo:
     aOriginal:= {2,4,6,8}
@@ -43,12 +43,16 @@ Exemplo:
 
 ## aReduce
 
-Inpirado no Array.reduce do Javascript, permite totalizar o conteúdo do array original, de acordo com a função fornecida.
+Inpirado no Array.reduce do Javascript, permite totalizar o conteÃºdo do array original, de acordo com a funÃ§Ã£o fornecida.
 
 Exemplo:
     aOriginal:= {2,4,6,8}
     nTotal:= aReduce(aOriginal, {|x,y| x+y })
     // Resultado: 20
+
+## aProduct
+
+Inspirado no itertools.product(*iterables, repeat=1) do Python, A funÃ§Ã£o Product() retorna o produto cartesiano dos dados inputados
 
 
 > Obs: Testes implementados com [advpl-testsuite](https://github.com/nginformatica/advpl-testsuite)
